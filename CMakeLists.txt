@@ -15,5 +15,5 @@ CHECK_FUNCTION_EXISTS(free HAVE_FREE)
 CHECK_FUNCTION_EXISTS(strstr HAVE_STRSTR)
 
 
-add_executable (xmlclientd xmlclientd.c process.c master.c debug.c client.c openproto.c strpos.c console.c)
+add_executable (xmlclientd xmlclientd.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c)
 
