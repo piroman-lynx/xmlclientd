@@ -14,7 +14,7 @@ void client_thread()
 
 void client_start_process(int argc, char* argv[])
 {
-    int result = process_make_new(&client_thread);
+    int result = process_make_new(&client_thread, argc, argv);
     if (result < 0){
 	debug("can't fork client\n");
     }

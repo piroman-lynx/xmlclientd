@@ -5,13 +5,14 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-int process_make_new(void (*callback)(void))
+int process_make_new(void (*callback)(int argc, char* argv[]), int argc, char* argv[])
 {
     pid_t pid = -1;
     pid = fork();
     if (pid == 0){
 	do {
-	    callback();
+	    callback(argc, argv);
+	    debug("Next cycle!\n");
 	} while (PERMANENT_CYCLE);
 	debug("Exiting process!\n");
 	exit(0);
