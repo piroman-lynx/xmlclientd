@@ -1,1 +1,1 @@
-void master_start_process(int argc, char* argv[]);
+void master_start_process(int argc, int* argv);

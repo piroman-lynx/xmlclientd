@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-int process_make_new(void (*callback)(int argc, char* argv[]), int argc, char* argv[])
+int process_make_new(void (*callback)(int argc, int* argv), int argc, int* argv)
 {
     pid_t pid = -1;
     pid = fork();

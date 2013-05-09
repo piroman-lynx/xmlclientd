@@ -6,5 +6,5 @@ int main(int argc, char* argv[])
 {
     debug("Starting!\n");
     //console_start();
-    master_start_process(argc, argv);
+    master_start_process(0, 0);
 }

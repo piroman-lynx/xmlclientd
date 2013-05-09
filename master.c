@@ -12,9 +12,8 @@ void master_forks(int count, int socket)
 {
     int i;
     for (i=0; i<count; i++){
-	char** argv = malloc(sizeof(void) * 1);
-	argv[0] = malloc(sizeof(int));
-	(*argv[0]) = socket;
+	int* argv = malloc(sizeof(int) * 1);
+	argv[0] = socket;
 	client_start_process(1, argv);
     }
 }
@@ -29,7 +28,7 @@ void master_permanenet_wait()
 /*
 * pass argv here
 */
-void master_thread()
+void master_thread(int argc, int* argv)
 {
     logger("Master process started: master", DEBUG_INFO);
     int socket = create_and_bind("1234");
@@ -39,7 +38,7 @@ void master_thread()
     master_permanenet_wait();
 }
 
-void master_start_process(int argc, char* argv[])
+void master_start_process(int argc, int* argv)
 {
     int result = process_make_new(&master_thread, argc, argv);
     if (result < 0){

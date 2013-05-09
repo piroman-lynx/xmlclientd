@@ -1,1 +1,1 @@
-int process_make_new(void (*callback)(int argc, char* argv[]), int argc, char* argv[]);
+int process_make_new(void (*callback)(int argc, int* argv), int argc, int* argv);
