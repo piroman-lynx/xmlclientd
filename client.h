@@ -1,0 +1,1 @@
+void client_start_process(int argc, char* argv[]);

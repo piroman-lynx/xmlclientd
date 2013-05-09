@@ -1,0 +1,1 @@
+#define PERMANENT_CYCLE 1

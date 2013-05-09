@@ -1,0 +1,1 @@
+void master_start_process(int argc, char* argv[]);

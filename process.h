@@ -1,0 +1,1 @@
+int process_make_new(void (*callback)(void));
