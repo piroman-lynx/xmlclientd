@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 2.6)
 project(xmlclientd)
 
 include(CheckFunctionExists)
+include(CheckIncludeFiles)
+INCLUDE (CheckLibraryExists) 
+
 
 set(CMAKE_EXTRA_INCLUDE_FILES unistd.h stdlib.h stdio.h)
 CHECK_FUNCTION_EXISTS(fork HAVE_FORK)

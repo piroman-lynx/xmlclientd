@@ -18,7 +18,7 @@ void openproto_run_command(char* string)
 
     char* returned;
 
-    char success = openproto_parse(string, value, &event);
+    char success = openproto_parse(string, &value, &event);
 
     switch (command){
 	case OPENPROTO_CONNECT:
@@ -54,7 +54,7 @@ int openproto_detect_command(char* string)
 * Format:
 * CommandName(EventId) text
 **/
-char openproto_parse(char* string, char* value, unsigned int* event)
+char openproto_parse(char* string, char** value, unsigned int* event)
 {
     int startEvent = strpos("(", string);
     int endEvent = strpos(")", string);
@@ -63,6 +63,7 @@ char openproto_parse(char* string, char* value, unsigned int* event)
 	logger("Bad Comamnd Format", DEBUG_WARN);
 	return 0;
     }
+    printf("length: %d\n", length);
     char* eventString = malloc(sizeof(char) * (length+1));
     int i,j=0;
     for (i=startEvent+1; i<endEvent; i++){
@@ -73,8 +74,8 @@ char openproto_parse(char* string, char* value, unsigned int* event)
     (*event) = atoi(eventString);
     free(eventString);
     //test:
-    value = malloc(sizeof(char) * 10);
-    strcpy(value, "Test URI");
+    (*value) = malloc(sizeof(char) * 10);
+    strcpy((*value), "Test URI");
     return 1;
 }
 
