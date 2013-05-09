@@ -79,8 +79,16 @@ char openproto_parse(char* string, char** value, unsigned int* event)
 	logger("Bad Comamnd Format, empty value", DEBUG_WARN);
 	return 0;
     }
-    (*value) = malloc(sizeof(char) * 10);
-    strcpy((*value), "Test URI");
+    j=0;
+    char *str = malloc(sizeof(char) * (strlen(string) + 1));
+    for (i=endEvent+1; i<strlen(string); i++){
+	str[j] = string[i];
+	j++;
+    }
+    str[j]=0;
+    (*value) = malloc(sizeof(char) * (strlen(str) + 1));
+    strcpy((*value), str);
+    free(str);
     return 1;
 }
 
