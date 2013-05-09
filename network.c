@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/epoll.h>
+
+#include "const.h"
 
 int create_and_bind (char *port)
 {
@@ -72,4 +75,29 @@ int make_socket_non_blocking (int sfd)
     }
 
   return 0;
+}
+
+
+void epool_create_real(int sfd, struct epoll_event **events, int* efd)
+{
+  efd = epoll_create1 (0);
+  struct epoll_event event;
+
+  if (efd == -1)
+    {
+      perror ("epoll_create");
+      abort ();
+    }
+
+  event.data.fd = sfd;
+  event.events = EPOLLIN | EPOLLET;
+  int s = epoll_ctl (efd, EPOLL_CTL_ADD, sfd, &event);
+  if (s == -1)
+    {
+      perror ("epoll_ctl");
+      abort ();
+    }
+
+  /* Buffer where events are returned */
+  (*events) = calloc (MAXEVENTS, sizeof event);
 }

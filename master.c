@@ -32,6 +32,8 @@ void master_thread(int argc, int* argv)
 {
     logger("Master process started: master", DEBUG_INFO);
     int socket = create_and_bind("1234");
+    int s = make_socket_non_blocking (socket);
+    listen (socket, SOMAXCONN);
     if (socket){
 	master_forks(3, socket);
     }
