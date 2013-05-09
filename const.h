@@ -1,1 +1,2 @@
 #define PERMANENT_CYCLE 1
+#define READ_BUFF_SIZE  1024

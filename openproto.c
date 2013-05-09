@@ -1,14 +1,16 @@
 #include "openproto.h"
 #include "debug.h"
+#include "strpos.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 void openproto_run_command(char* string)
 {
-    unsigned int command = openproto_detect_command(string);
+    int command = openproto_detect_command(string);
     if (command < 0){
 	logger("Bad command", DEBUG_WARN);
+	return;
     }
     unsigned int event;
     char* value;
@@ -26,7 +28,6 @@ void openproto_run_command(char* string)
 	    openproto_run_CLOSE(event);
 	    break;
 	case OPENPROTO_READ:
-
 	    returned = openproto_run_READ(event);
 	    break;
 	default:
@@ -34,7 +35,7 @@ void openproto_run_command(char* string)
     }
 }
 
-unsigned int openproto_detect_command(char* string)
+int openproto_detect_command(char* string)
 {
     if (strpos(OPENPROTO_STR_CONNECT, string) == 0){
 	return OPENPROTO_CONNECT;
@@ -65,4 +66,20 @@ char openproto_parse(char* string, char** value, unsigned int* event)
     (*event) = atoi(eventString);
     free(eventString);
     return 1;
+}
+
+void openproto_run_CONNECT(char* uri, unsigned int event)
+{
+    debug("Connect!");
+    debug(uri);
+}
+
+void openproto_run_CLOSE(unsigned int event)
+{
+    debug("Close!");
+}
+
+char* openproto_run_READ(unsigned int event)
+{
+    debug("Read!");
 }

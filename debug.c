@@ -5,7 +5,7 @@ char levels[][6] = { "FATAL", "ERROR", "WARN ", "INFO ", "     ", "     ", "DEBU
 
 void logger(char* message, int level)
 {
-    printf("[%d] [%s] %s", 0, levels[level], message);
+    printf("[%d] [%s] %s\n", 0, levels[level], message);
 }
 
 void debug(char* message)
