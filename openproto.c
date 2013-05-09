@@ -18,7 +18,7 @@ void openproto_run_command(char* string)
 
     char* returned;
 
-    char success = openproto_parse(string, &value, &event);
+    char success = openproto_parse(string, value, &event);
 
     switch (command){
 	case OPENPROTO_CONNECT:
@@ -54,17 +54,27 @@ int openproto_detect_command(char* string)
 * Format:
 * CommandName(EventId) text
 **/
-char openproto_parse(char* string, char** value, unsigned int* event)
+char openproto_parse(char* string, char* value, unsigned int* event)
 {
     int startEvent = strpos("(", string);
     int endEvent = strpos(")", string);
-    if (endEvent-startEvent < 1){
+    int length = endEvent-startEvent;
+    if (length < 1){
 	logger("Bad Comamnd Format", DEBUG_WARN);
 	return 0;
     }
-    char* eventString = malloc(sizeof(char) * endEvent-startEvent);
+    char* eventString = malloc(sizeof(char) * (length+1));
+    int i,j=0;
+    for (i=startEvent+1; i<endEvent; i++){
+	eventString[j] = string[i];
+	j++;
+    }
+    eventString[j]=0;
     (*event) = atoi(eventString);
     free(eventString);
+    //test:
+    value = malloc(sizeof(char) * 10);
+    strcpy(value, "Test URI");
     return 1;
 }
 
@@ -72,6 +82,7 @@ void openproto_run_CONNECT(char* uri, unsigned int event)
 {
     debug("Connect!");
     debug(uri);
+    free(uri);
 }
 
 void openproto_run_CLOSE(unsigned int event)

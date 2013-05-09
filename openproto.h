@@ -16,7 +16,7 @@
 void openproto_run_command(char* string);
 
 int openproto_detect_command(char* string);
-char openproto_parse(char* string, char** value, unsigned int* event);
+char openproto_parse(char* string, char* value, unsigned int* event);
 
 void openproto_run_CONNECT(char* uri, unsigned int event);
 void openproto_run_CLOSE(unsigned int event);

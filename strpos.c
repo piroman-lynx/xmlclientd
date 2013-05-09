@@ -4,7 +4,7 @@ int strpos(char *needle, char *haystack)
 {
    char *p = strstr(haystack, needle);
    if (p){
-      return haystack-p;
+      return p-haystack;
    }
    return -1;   // Not found = -1.
 }
