@@ -31,17 +31,12 @@ CHECK_FUNCTION_EXISTS(memset HAVE_MEMSET)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GLIB_PKG glib-2.0)
 
-if (NOT GLIB_PKG_FOUND)
-    message(FATAL_ERROR glib-2.0)
-endif (NOT GLIB_PKG_FOUND)
-include_directories(${GLIB_PKG_INCLUDE_DIRS})
-
-find_path(GLIB_INCLUDE_DIR NAMES glib.h PATH_SUFFIXES glib-2.0)
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/lib/x86_64-linux-gnu/")
 
 add_executable (xmlclientd xmlclientd.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c url.c)
 add_executable (xmlclientc xmlclientc.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c url.c)
 
-target_link_libraries (xmlclientd glib)
-target_link_libraries (xmlclientc glib)
+target_link_libraries (xmlclientd glib-2.0)
+target_link_libraries (xmlclientc glib-2.0)
 
 #/usr/lib/x86_64-linux-gnu/libglib
