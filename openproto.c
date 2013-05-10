@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-int openproto_run_command(char* string, int console_efd, GHashTable *send, GHashTable *recaive, int sockfd)
+int openproto_run_command(char* string, int console_efd, GHashTable *send, GHashTable *recaive, GHashTable *commands, int command_count, int step, int sockfd)
 {
     int command = openproto_detect_command(string);
     if (command < 0){
@@ -159,10 +159,9 @@ char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recai
 {
     char* sock_str = malloc(128 * sizeof(char));
     sprintf(sock_str, "%d", sockfd);
-    printf("sock_str: %s\n", sock_str);
 
     char* recaived = g_hash_table_lookup(recaive, sock_str);
     debug("Read!");
-    printf("Bytes: %d\n", strlen(recaived));
+    printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
 }
 
