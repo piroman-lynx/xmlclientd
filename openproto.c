@@ -1,11 +1,17 @@
 #include "openproto.h"
 #include "debug.h"
 #include "strpos.h"
+#include "network.h"
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
-void openproto_run_command(char* string)
+void openproto_run_command(char* string, int console_efd)
 {
     int command = openproto_detect_command(string);
     if (command < 0){
@@ -15,14 +21,13 @@ void openproto_run_command(char* string)
     unsigned int event;
     char* value;
 
-
     char* returned;
 
     char success = openproto_parse(string, &value, &event);
 
     switch (command){
 	case OPENPROTO_CONNECT:
-	    openproto_run_CONNECT(value, event);
+	    openproto_run_CONNECT(value, event, console_efd);
 	    break;
 	case OPENPROTO_CLOSE:
 	    openproto_run_CLOSE(event);
@@ -91,11 +96,47 @@ char openproto_parse(char* string, char** value, unsigned int* event)
     return 1;
 }
 
-void openproto_run_CONNECT(char* uri, unsigned int event)
+void openproto_run_CONNECT(char* uri, unsigned int event, int console_efd)
 {
     debug("Connect!");
     debug(uri);
+    int proto, port;
+    struct hostent* host;
+    if (url_parse(uri, &proto, &host, &port) < 0){
+	logger("Can't parse url",DEBUG_WARN);
+	return;
+    }
     free(uri);
+    int sockfd, n;
+    struct sockaddr_in serv_addr;
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0){
+	logger("Can't create client socket",DEBUG_ERROR);
+	return;
+    }
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    bcopy((char *)host->h_addr,
+          (char *)&serv_addr.sin_addr.s_addr,
+          host->h_length);
+    serv_addr.sin_port = htons(port);
+    if (make_socket_non_blocking(sockfd) != 0){
+	logger("can't make socket non-blocking",DEBUG_ERROR);
+	return;
+    }
+    if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0){
+	if (errno != 115){
+		logger("can't connect client socket",DEBUG_ERROR);
+		return;
+	}
+    }
+    struct epoll_event *revent = malloc(sizeof(struct epoll_event));
+    revent->data.fd = sockfd;
+    revent->events = EPOLLIN | EPOLLET;
+    if (epoll_ctl(console_efd, EPOLL_CTL_ADD, sockfd, revent) == -1){
+	logger("can't epoll_ctl", DEBUG_ERROR);
+    }
+    printf("socket: %d\n", sockfd);
 }
 
 void openproto_run_CLOSE(unsigned int event)
@@ -107,3 +148,4 @@ char* openproto_run_READ(unsigned int event)
 {
     debug("Read!");
 }
+

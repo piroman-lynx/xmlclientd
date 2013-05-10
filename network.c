@@ -10,6 +10,15 @@
 
 #include "const.h"
 
+int* sockets; 
+int sockets_counter = 0;
+
+void alloc_sockets()
+{
+    sockets = malloc(sizeof(int) * 1024);
+    sockets_counter = 0;
+}
+
 int create_and_bind (char *port)
 {
   struct addrinfo hints;
@@ -77,7 +86,6 @@ int make_socket_non_blocking (int sfd)
 
   return 0;
 }
-
 
 void epool_create_real(int sfd, struct epoll_event **events, int* efd)
 {
