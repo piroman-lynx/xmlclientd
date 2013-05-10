@@ -31,16 +31,19 @@ xmlclientd реализует в себе tcp-клиент для текстов
 * Отсоединяет клиента A
 * Парсит xml, обрабатывает его с помощью xslt - получается документ-описание в стиле внутреннего протокола xmlclientd
 * Согласно тем инструкциям которые получились в результате предыдущего пункта:
-** Клиент открывает соединение или несколько соединений
-** Клиент отправаляет/получает данные, обрабатывает ситуации с помощью предопределений в конфиге и если требуется передает данные на обработку в php
+* 1) Клиент открывает соединение или несколько соединений
+* 2) Клиент отправаляет/получает данные, обрабатывает ситуации с помощью предопределений в конфиге и если требуется передает данные на обработку в php
 
 Пример xml-для запроса:
+<pre>
 <xml type="httpsms">
  <tophone>+7 (903) 123-12-12</tophone>
  <text>test</text>
 </xml>
+</pre>
 
 Пример набора команд получаемых в результате обработки xml+xslt:
+<pre>
 SetTimeouts(1) 90s
 Connect(2) tcp://smsservice:80
 Write(3) GET /send/sms HTTP/1.1
@@ -50,12 +53,14 @@ Write(3) {"auth":{"login":"login", "password":"pasword"}, "data":{"phone":"+7 (9
 Write(3) \n
 Read(4) 
 Match(5) HTTP/1.1 200 OK
+</pre>
 
 Пример набора предопределния ситуаций с ошибками:
+<pre>
 <xml>
  <error id="3"><action type="default" action="log" /></error>
  <error id="4"><action type="default" action="log" /></error>
  <error id="5"><action type="Match" action="execute" bin="/var/www/cron.php --error=ResponseNot200" response="stdout/pipe" /></error>
  <error id="default"><action type="default" bin="/var/www/cron.php --error=UnCatchableError" response="stdout/pipe" /></error>
 </xml>
-
+</pre>
