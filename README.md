@@ -35,32 +35,28 @@ xmlclientd реализует в себе tcp-клиент для текстов
 * 2) Клиент отправаляет/получает данные, обрабатывает ситуации с помощью предопределений в конфиге и если требуется передает данные на обработку в php
 
 Пример xml-для запроса:
-<pre>
-<xml type="httpsms">
- <tophone>+7 (903) 123-12-12</tophone>
- <text>test</text>
-</xml>
-</pre>
+    <xml type="httpsms">
+     <tophone>+7 (903) 123-12-12</tophone>
+     <text>test</text>
+    </xml>
 
 Пример набора команд получаемых в результате обработки xml+xslt:
-<pre>
-SetTimeouts(1) 90s
-Connect(2) tcp://smsservice:80
-Write(3) GET /send/sms HTTP/1.1
-Write(3) Host: smsservice
-Write(3) 
-Write(3) {"auth":{"login":"login", "password":"pasword"}, "data":{"phone":"+7 (903) 123-12-12", "text":test"}}
-Write(3) \n
-Read(4) 
-Match(5) HTTP/1.1 200 OK
-</pre>
+    SetTimeouts(1) 90s<br>
+    Connect(2) tcp://smsservice:80<br>
+    Write(3) GET /send/sms HTTP/1.1<br>
+    Write(3) Host: smsservice<br>
+    Write(3) <br>
+    Write(3) {"auth":{"login":"login", "password":"pasword"}, "data":{"phone":"+7 (903) 123-12-12", "text":test"}}<br>
+    Write(3) \n<br>
+    Read(4) <br>
+    Match(5) HTTP/1.1 200 OK<br>
 
 Пример набора предопределния ситуаций с ошибками:
-<pre>
-<xml>
- <error id="3"><action type="default" action="log" /></error>
- <error id="4"><action type="default" action="log" /></error>
- <error id="5"><action type="Match" action="execute" bin="/var/www/cron.php --error=ResponseNot200" response="stdout/pipe" /></error>
- <error id="default"><action type="default" bin="/var/www/cron.php --error=UnCatchableError" response="stdout/pipe" /></error>
-</xml>
-</pre>
+    <code>
+    <xml>
+     <error id="3"><action type="default" action="log" /></error>
+     <error id="4"><action type="default" action="log" /></error>
+     <error id="5"><action type="Match" action="execute" bin="/var/www/cron.php --error=ResponseNot200" response="stdout/pipe" /></error>
+     <error id="default"><action type="default" bin="/var/www/cron.php --error=UnCatchableError" response="stdout/pipe" /></error>
+    </xml>
+    </code>
