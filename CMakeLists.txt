@@ -33,10 +33,10 @@ pkg_check_modules(GLIB_PKG glib-2.0)
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/lib/x86_64-linux-gnu/")
 
-add_executable (xmlclientd xmlclientd.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c url.c)
-add_executable (xmlclientc xmlclientc.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c url.c)
+add_executable (bin/xmlclientd src/xmlclientd.c src/process.c src/master.c src/debug.c src/client.c src/openproto.c src/strpos.c src/console.c src/server.c src/network.c src/url.c)
+add_executable (bin/xmlclientc src/xmlclientc.c src/process.c src/master.c src/debug.c src/client.c src/openproto.c src/strpos.c src/console.c src/server.c src/network.c src/url.c)
 
-target_link_libraries (xmlclientd glib-2.0)
-target_link_libraries (xmlclientc glib-2.0)
+target_link_libraries (bin/xmlclientd glib-2.0)
+target_link_libraries (bin/xmlclientc glib-2.0)
 
 #/usr/lib/x86_64-linux-gnu/libglib
