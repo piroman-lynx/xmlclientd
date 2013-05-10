@@ -74,7 +74,6 @@ char openproto_parse(char* string, char** value, unsigned int* event)
     (*event) = atoi(eventString);
     free(eventString);
     //test:
-    printf("strlen: %d, endEvent+2: %d\n", strlen(string), (endEvent+2));
     if (strlen(string) < (endEvent+2)){
 	logger("Bad Comamnd Format, empty value", DEBUG_WARN);
 	return 0;

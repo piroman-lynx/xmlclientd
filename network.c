@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/epoll.h>
+#include <stdlib.h>
 
 #include "const.h"
 
@@ -80,22 +81,23 @@ int make_socket_non_blocking (int sfd)
 
 void epool_create_real(int sfd, struct epoll_event **events, int* efd)
 {
-  efd = epoll_create1 (0);
+  (*efd) = epoll_create1 (0);
   struct epoll_event event;
 
-  if (efd == -1)
+  if ((*efd) == -1)
     {
       perror ("epoll_create");
-      abort ();
+      return;
     }
 
   event.data.fd = sfd;
   event.events = EPOLLIN | EPOLLET;
-  int s = epoll_ctl (efd, EPOLL_CTL_ADD, sfd, &event);
+  int s = epoll_ctl ((*efd), EPOLL_CTL_ADD, sfd, &event);
   if (s == -1)
     {
       perror ("epoll_ctl");
-      abort ();
+      (*efd) = -1;
+      return;
     }
 
   /* Buffer where events are returned */

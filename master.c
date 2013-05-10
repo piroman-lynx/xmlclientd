@@ -7,6 +7,7 @@
 
 #include "unistd.h"
 #include <stdlib.h>
+#include <sys/socket.h>
 
 void master_forks(int count, int socket)
 {

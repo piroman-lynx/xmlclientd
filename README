@@ -57,3 +57,4 @@ xmlclientd реализует в себе tcp-клиент для текстов
 	<error id="4"><action type="default" action="log" /></error>
 	<error id="5"><action type="Match" action="execute" bin="/var/www/cron.php --error=ResponseNot200" response="stdout/pipe" /></error>
 	<error id="default"><action type="default" bin="/var/www/cron.php --error=UnCatchableError" response="stdout/pipe" /></error>
+	</xml>
