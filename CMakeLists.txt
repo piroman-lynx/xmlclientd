@@ -5,8 +5,16 @@ include(CheckFunctionExists)
 include(CheckIncludeFiles)
 INCLUDE (CheckLibraryExists) 
 
+#CHECK_LIBRARY_EXISTS(glib "g_hash_table_new" "/usr/include/glib-2.0/" HAVE_GLIB20)
+
+#IF(NOT HAVE_GLIB20)
+#    MESSAGE(FATAL_ERROR "ERROR: unable to link glib 2.0")
+#ENDIF(NOT HAVE_GLIB20)
+
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} "/usr/include/glib-2.0/" "/usr/lib/x86_64-linux-gnu/glib-2.0/include/"  )
 
 set(CMAKE_EXTRA_INCLUDE_FILES unistd.h stdlib.h stdio.h)
+
 CHECK_FUNCTION_EXISTS(fork HAVE_FORK)
 CHECK_FUNCTION_EXISTS(vfork HAVE_VFORK)
 CHECK_FUNCTION_EXISTS(printf HAVE_PRINTF)
@@ -20,5 +28,20 @@ CHECK_FUNCTION_EXISTS(epoll_ctl HAVE_EPOLL)
 CHECK_FUNCTION_EXISTS(fcntl HAVE_FCNTL)
 CHECK_FUNCTION_EXISTS(memset HAVE_MEMSET)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB_PKG glib-2.0)
+
+if (NOT GLIB_PKG_FOUND)
+    message(FATAL_ERROR glib-2.0)
+endif (NOT GLIB_PKG_FOUND)
+include_directories(${GLIB_PKG_INCLUDE_DIRS})
+
+find_path(GLIB_INCLUDE_DIR NAMES glib.h PATH_SUFFIXES glib-2.0)
+
 add_executable (xmlclientd xmlclientd.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c url.c)
 add_executable (xmlclientc xmlclientc.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c url.c)
+
+target_link_libraries (xmlclientd glib)
+target_link_libraries (xmlclientc glib)
+
+#/usr/lib/x86_64-linux-gnu/libglib

@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void openproto_run_command(char* string, int console_efd)
+void openproto_run_command(char* string, int console_efd, GHashTable *send, GHashTable *recaive)
 {
     int command = openproto_detect_command(string);
     if (command < 0){
@@ -27,13 +27,13 @@ void openproto_run_command(char* string, int console_efd)
 
     switch (command){
 	case OPENPROTO_CONNECT:
-	    openproto_run_CONNECT(value, event, console_efd);
+	    openproto_run_CONNECT(value, event, console_efd, send, recaive);
 	    break;
 	case OPENPROTO_CLOSE:
 	    openproto_run_CLOSE(event);
 	    break;
 	case OPENPROTO_READ:
-	    returned = openproto_run_READ(event);
+	    returned = openproto_run_READ(event, send, recaive);
 	    break;
 	default:
 	    logger("Not Implemented!", DEBUG_ERROR);
@@ -96,7 +96,7 @@ char openproto_parse(char* string, char** value, unsigned int* event)
     return 1;
 }
 
-void openproto_run_CONNECT(char* uri, unsigned int event, int console_efd)
+void openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable *send, GHashTable *recaive)
 {
     debug("Connect!");
     debug(uri);
@@ -144,7 +144,7 @@ void openproto_run_CLOSE(unsigned int event)
     debug("Close!");
 }
 
-char* openproto_run_READ(unsigned int event)
+char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recaive)
 {
     debug("Read!");
 }

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <glib.h>
 
 void console_start(int argc, char* argv[])
 {
@@ -13,8 +14,15 @@ void console_start(int argc, char* argv[])
     char buff[READ_BUFF_SIZE];
     memset(buff, 0, READ_BUFF_SIZE);
     int console_efd = client_epoll_create();
+
+    GHashTable* socket_send_hash = g_hash_table_new(g_str_hash, g_str_equal);
+    GHashTable* socket_recaive_hash = g_hash_table_new(g_str_hash, g_str_equal);
+
     while ((n = read(STDIN_FILENO, buff, READ_BUFF_SIZE-1)) > 0){
-	openproto_run_command(buff, console_efd);
+	openproto_run_command(buff, console_efd, socket_send_hash, socket_recaive_hash);
 	memset(buff, 0, READ_BUFF_SIZE);
     }
+
+    g_hash_table_destroy(socket_send_hash);
+    g_hash_table_destroy(socket_recaive_hash);
 }
