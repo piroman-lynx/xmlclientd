@@ -14,11 +14,11 @@
 #define OPENPROTO_STR_READ "Read("
 
 //do detect and run command
-void openproto_run_command(char* string, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash);
+int openproto_run_command(char* string, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, int sockfd);
 
 int openproto_detect_command(char* string);
 char openproto_parse(char* string, char** value, unsigned int* event);
 
-void openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash);
+int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash);
 void openproto_run_CLOSE(unsigned int event);
-char* openproto_run_READ(unsigned int event, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash);
+char* openproto_run_READ(unsigned int event, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, int sockfd);

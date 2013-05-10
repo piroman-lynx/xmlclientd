@@ -3,6 +3,7 @@
 #include "strpos.h"
 #include "network.h"
 
+#include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void openproto_run_command(char* string, int console_efd, GHashTable *send, GHashTable *recaive)
+int openproto_run_command(char* string, int console_efd, GHashTable *send, GHashTable *recaive, int sockfd)
 {
     int command = openproto_detect_command(string);
     if (command < 0){
@@ -27,13 +28,15 @@ void openproto_run_command(char* string, int console_efd, GHashTable *send, GHas
 
     switch (command){
 	case OPENPROTO_CONNECT:
-	    openproto_run_CONNECT(value, event, console_efd, send, recaive);
+	    return openproto_run_CONNECT(value, event, console_efd, send, recaive);
 	    break;
 	case OPENPROTO_CLOSE:
 	    openproto_run_CLOSE(event);
+	    return 0;
 	    break;
 	case OPENPROTO_READ:
-	    returned = openproto_run_READ(event, send, recaive);
+	    returned = openproto_run_READ(event, send, recaive, sockfd);
+	    return 0;
 	    break;
 	default:
 	    logger("Not Implemented!", DEBUG_ERROR);
@@ -96,7 +99,7 @@ char openproto_parse(char* string, char** value, unsigned int* event)
     return 1;
 }
 
-void openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable *send, GHashTable *recaive)
+int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable *send, GHashTable *recaive)
 {
     debug("Connect!");
     debug(uri);
@@ -137,6 +140,14 @@ void openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHash
 	logger("can't epoll_ctl", DEBUG_ERROR);
     }
     printf("socket: %d\n", sockfd);
+
+    char* sock_str = malloc(128 * sizeof(char));
+    sprintf(sock_str, "%d", sockfd);
+    printf("sock_str: %s\n", sock_str);
+    g_hash_table_insert(send, sock_str, "");
+    g_hash_table_insert(recaive, sock_str, "");
+    //free(sock_str);
+    return sockfd;
 }
 
 void openproto_run_CLOSE(unsigned int event)
@@ -144,8 +155,14 @@ void openproto_run_CLOSE(unsigned int event)
     debug("Close!");
 }
 
-char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recaive)
+char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recaive, int sockfd)
 {
+    char* sock_str = malloc(128 * sizeof(char));
+    sprintf(sock_str, "%d", sockfd);
+    printf("sock_str: %s\n", sock_str);
+
+    char* recaived = g_hash_table_lookup(recaive, sock_str);
     debug("Read!");
+    printf("Bytes: %d\n", strlen(recaived));
 }
 
