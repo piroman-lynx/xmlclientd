@@ -52,11 +52,8 @@ xmlclientd реализует в себе tcp-клиент для текстов
     Match(5) HTTP/1.1 200 OK<br>
 
 Пример набора предопределния ситуаций с ошибками:
-    <code>
-    <xml>
-     <error id="3"><action type="default" action="log" /></error>
-     <error id="4"><action type="default" action="log" /></error>
-     <error id="5"><action type="Match" action="execute" bin="/var/www/cron.php --error=ResponseNot200" response="stdout/pipe" /></error>
-     <error id="default"><action type="default" bin="/var/www/cron.php --error=UnCatchableError" response="stdout/pipe" /></error>
-    </xml>
-    </code>
+	<xml>
+	<error id="3"><action type="default" action="log" /></error>
+	<error id="4"><action type="default" action="log" /></error>
+	<error id="5"><action type="Match" action="execute" bin="/var/www/cron.php --error=ResponseNot200" response="stdout/pipe" /></error>
+	<error id="default"><action type="default" bin="/var/www/cron.php --error=UnCatchableError" response="stdout/pipe" /></error>
