@@ -21,4 +21,4 @@ CHECK_FUNCTION_EXISTS(fcntl HAVE_FCNTL)
 CHECK_FUNCTION_EXISTS(memset HAVE_MEMSET)
 
 add_executable (xmlclientd xmlclientd.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c)
-
+add_executable (xmlclientc xmlclientc.c process.c master.c debug.c client.c openproto.c strpos.c console.c server.c network.c)
