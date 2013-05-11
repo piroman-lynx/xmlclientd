@@ -25,15 +25,20 @@ void client_start_epoll(int efd)
     struct epoll_event *events;
     events = calloc (MAXEVENTS, sizeof (struct epoll_event));
 
+    printf("efd=%d\n", efd);
+
     while (1){
       int n, i;
       n = epoll_wait (efd, events, MAXEVENTS, -1);
       for (i = 0; i < n; i++){
-            if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN))) {
-                fprintf (stderr, "epoll error\n");
-	        close (events[i].data.fd);
-    		continue;
-    	    }else{
+	    //115 - operation in progress
+            if ((errno != 115) && ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN)))) {
+		perror("Epoll");
+		printf("epoll errno=%d\n",errno);
+		logger("epoll error!", DEBUG_ERROR);
+		close (events[i].data.fd);
+		continue;
+	    }else{
               int done = 0;
               while (1){
                   ssize_t count;
@@ -48,7 +53,10 @@ void client_start_epoll(int efd)
                   } else if (count == 0) {
                       done = 1;
                       break;
-                  }
+                  } else {
+		    debug("Readed!:");
+		    debug(buf);
+		  }
               }if (done){
                   printf ("Closed connection on descriptor %d\n", events[i].data.fd);
                   close (events[i].data.fd);

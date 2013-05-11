@@ -42,24 +42,14 @@ void console_start(int argc, char* argv[])
     for (i=0; i<command_count; i++){
 	debug("in cycle");
 	int old_size = g_hash_table_size(socket_send_hash);
-//	char* str_i = malloc(sizeof(char)*128);
-//	debug("malloc ok");
-//	sprintf(str_i, "%d", i);
-//	debug("sprintf ok");
-//	debug(str_i);
-	//buff = g_hash_table_lookup(commands_hash, str_i);
 	if (!buff[i]){
 	    debug("Command Batch finished");
 	    debug("Exiting");
 	    return;
 	}
-	debug("buff ok");
-//	free(str_i);
-//	debug("free str_i ok");
+	debug("Run Command");
 	int r = openproto_run_command(buff[i], console_efd, socket_send_hash, socket_recaive_hash, commands_hash, command_count, i, sockfd);
-	debug("command run ok");
 	free(buff[i]);
-	debug("free buff ok");
 	int new_size = g_hash_table_size(socket_send_hash);
 	if (new_size > old_size){
 	    //connection open!

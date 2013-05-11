@@ -131,6 +131,8 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
 	if (errno != 115){
 		logger("can't connect client socket",DEBUG_ERROR);
 		return;
+	}else{
+		debug("Connect: operation in progress");
 	}
     }
     struct epoll_event *revent = malloc(sizeof(struct epoll_event));
