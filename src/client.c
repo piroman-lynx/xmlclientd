@@ -21,6 +21,30 @@ void client_thread(int argc, int* argv)
     exit(0);
 }
 
+void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, GHashTable* commands_hash, char* buff)
+{
+    debug("push_to_buff!");
+
+    char* str_socket = malloc(sizeof(char) * 128);
+    sprintf(str_socket, "%d", socket);
+
+    char* str = g_hash_table_lookup(socket_recaive_hash, str_socket);
+
+    if (!str){
+	str = malloc(sizeof(char)*1024);
+    }
+    int oldlen = strlen(str);
+    int i,j=0;
+    for (i=oldlen; i<strlen(buff); i++){
+	str[i]=buff[j];
+	j++;
+    }
+    str[i] = '\0';
+    free(str_socket);
+    return;
+}
+
+
 void client_start_epoll(int efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, GHashTable* commands_hash, int command_count, int ecounter)
 {
     char buf[1024];
@@ -61,9 +85,10 @@ void client_start_epoll(int efd, GHashTable* socket_send_hash, GHashTable* socke
                   } else {
 		    debug("Readed!:");
 		    debug(buf);
-		    icounter = push_to_buff(socket_recaive_hash, command_count, icounter, commands_hash, buf);
+		    rpush_to_buff(socket_recaive_hash, events[i].data.fd, commands_hash, buf);
 		  }
-              }if (done){
+              }
+	      if (done){
                   printf ("Closed connection on descriptor %d\n", events[i].data.fd);
                   close (events[i].data.fd);
               }
@@ -72,57 +97,6 @@ void client_start_epoll(int efd, GHashTable* socket_send_hash, GHashTable* socke
    }
 }
 
-int push_to_buff(GHashTable* socket_recaive_hash, int command_count, int icounter, GHashTable*  commands_hash, char* buff)
-{
-    debug("push_to_buff!");
-    char* rbuff = malloc(sizeof(char) * (strlen(buff)+1));
-    char* oldrbuff = rbuff;
-    memcpy(rbuff, buff, sizeof(char) * (strlen(buff)+1));
-    int have_data = 1;
-    char* str_icounter = malloc(sizeof(char) * 128);
-    while (have_data){
-        sprintf(str_icounter, "%d", icounter);
-	char* str = g_hash_table_lookup(socket_recaive_hash, str_icounter);
-	if (!str){
-	    str = malloc(sizeof(char)*1024);
-	}
-	
-	int oldlen = strlen(str);
-	int i,j=0;
-	for (i=oldlen; i<strlen(rbuff); i++){
-	    if ((rbuff[j]!='\n')&&(rbuff[j]!='\r')){
-	        str[i] = buff[j];
-	    }else{
-		//next string
-		if ((rbuff[j+1]=='\r')||(rbuff[j+1]=='\n')){
-		    j+= 2;
-		}else{
-		    j++;
-		}
-		sprintf(str_icounter, "%d", atoi(str_icounter) + 1);
-		if (j<strlen(rbuff)){
-		    rbuff = rbuff + (sizeof(char) * j); //move pointer
-		    debug("String partialy writed!");
-		    have_data=1;
-		    break; //goto while(have_data)
-		}else{
-		    have_data=0; //go out
-		    debug("String writed!");
-		    break;
-		}
-	    }
-	    j++;
-	    str[i]='\0';
-	}
-	debug(str);
-    }
-    free(oldrbuff);
-    debug("oldrbuff free");
-    int ret = atoi(str_icounter);
-    free(str_icounter);
-    debug("str_icounter free");
-    return ret;
-}
 
 int client_epoll_create()
 {
