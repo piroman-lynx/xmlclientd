@@ -58,7 +58,7 @@ void console_start(int argc, char* argv[])
 	    break;
 	}
     }
-    client_start_epoll(console_efd);
+    client_start_epoll(console_efd, socket_send_hash, socket_recaive_hash, commands_hash, command_count, i);
 
     g_hash_table_destroy(socket_send_hash);
     g_hash_table_destroy(socket_recaive_hash);
