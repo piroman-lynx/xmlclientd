@@ -31,15 +31,25 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, GHashTable* comm
     char* str = g_hash_table_lookup(socket_recaive_hash, str_socket);
 
     if (!str){
-	str = malloc(sizeof(char)*1024);
+	str = malloc(sizeof(char) * 1024);
+	memset(str, 0, (1024*sizeof(char)));
     }
+    
+    char* tmpstr = malloc(sizeof(char) * (strlen(str)+1));
+    memcpy(tmpstr, str, sizeof(char) * (strlen(str)+1));
+    //free(str); //TODO: Segmentation fault here
+    debug("free");
+    str = malloc(sizeof(char) * (strlen(str)+strlen(buff)+1));
+    memcpy(str, tmpstr, sizeof(char) * (strlen(str)+1));
+
     int oldlen = strlen(str);
     int i,j=0;
-    for (i=oldlen; i<strlen(buff); i++){
-	str[i]=buff[j];
+    for (i=oldlen; i<oldlen+strlen(buff); i++){
+	str[i] = buff[j];
 	j++;
     }
     str[i] = '\0';
+    debug("free str_socket");
     free(str_socket);
     return;
 }
