@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-int openproto_run_command(char* string, int console_efd, GHashTable *send, GHashTable *recaive, GHashTable *commands, int command_count, int step, int sockfd)
+int openproto_run_command(char* string, struct connection *conn /*int console_efd, GHashTable *send, GHashTable *recaive, GHashTable *commands, int command_count, int step, int sockfd*/)
 {
     int command = openproto_detect_command(string);
     if (command < 0){
@@ -21,21 +21,23 @@ int openproto_run_command(char* string, int console_efd, GHashTable *send, GHash
     }
     unsigned int event;
     char* value;
-
     char* returned;
+    int sock;
 
     char success = openproto_parse(string, &value, &event);
 
     switch (command){
 	case OPENPROTO_CONNECT:
-	    return openproto_run_CONNECT(value, event, console_efd, send, recaive);
+	    sock = openproto_run_CONNECT(value, event, (*conn).efd, (*conn).send_hash, (*conn).recaive_hash);
+	    (*conn).sockfd = sock;
+	    return 0;
 	    break;
 	case OPENPROTO_CLOSE:
 	    openproto_run_CLOSE(event);
 	    return 0;
 	    break;
 	case OPENPROTO_READ:
-	    returned = openproto_run_READ(event, send, recaive, sockfd);
+	    openproto_run_READ(event, (*conn).send_hash, (*conn).recaive_hash, (*conn).sockfd);
 	    return 0;
 	    break;
 	default:
@@ -43,25 +45,26 @@ int openproto_run_command(char* string, int console_efd, GHashTable *send, GHash
     }
 }
 
-int openproto_next_read_command(GHashTable* socket_recaive_hash, int client_fd, GHashTable* commands_hash, int ecounter, int command_count, int efd, int sockfd)
+int openproto_next_read_command(struct connection *conn)
 {
     //get data from buffer
     
     //check next command - Read(X) STRING or Read(X) ANY
-    int icounter = ecounter + 1;
+    int icounter = (*conn).now_command + 1;
     printf("ecounter=%d\n",icounter);
     char* str_icounter = malloc(sizeof(char) * 1024);
     memset(str_icounter, 0 , 1024);
     sprintf(str_icounter, "%d", icounter);
-    printf("count commands in batch: %d\n", g_hash_table_size(commands_hash));
-    char* nextcommand = g_hash_table_lookup(commands_hash, str_icounter);
+    printf("count commands in batch: %d\n", g_hash_table_size((*conn).commands_hash));
+    char* nextcommand = g_hash_table_lookup((*conn).commands_hash, str_icounter);
     if (!nextcommand){
 	debug("Command batch is empty");
     }else{
 	debug("Next Command:");
 	debug(nextcommand);
     }
-    icounter = openproto_run_command(nextcommand, efd, 0, socket_recaive_hash, commands_hash, command_count, icounter, sockfd);
+    (*conn).now_command = icounter;
+    icounter = openproto_run_command(nextcommand, conn);
     return icounter;
 }
 
