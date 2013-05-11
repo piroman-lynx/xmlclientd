@@ -31,7 +31,8 @@ void console_start(int argc, char* argv[])
 	}
 	debug("readed!");
 	sprintf(n_str, "%d", command_count);
-	g_hash_table_insert(commands_hash, n_str, buff);
+	printf("command_count=%d\n", command_count);
+	g_hash_table_insert(commands_hash, n_str, buff[command_count]);
 	command_count++;
 	buff[command_count] = malloc(sizeof(char) * READ_BUFF_SIZE);
 	memset(buff[command_count], 0, READ_BUFF_SIZE);

@@ -21,7 +21,7 @@ void client_thread(int argc, int* argv)
     exit(0);
 }
 
-void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, GHashTable* commands_hash, char* buff)
+void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 {
     debug("push_to_buff!");
 
@@ -38,7 +38,7 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, GHashTable* comm
     char* tmpstr = malloc(sizeof(char) * (strlen(str)+1));
     memcpy(tmpstr, str, sizeof(char) * (strlen(str)+1));
     //free(str); //TODO: Segmentation fault here
-    debug("free");
+    //debug("free");
     str = malloc(sizeof(char) * (strlen(str)+strlen(buff)+1));
     memcpy(str, tmpstr, sizeof(char) * (strlen(str)+1));
 
@@ -95,7 +95,8 @@ void client_start_epoll(int efd, GHashTable* socket_send_hash, GHashTable* socke
                   } else {
 		    debug("Readed!:");
 		    debug(buf);
-		    rpush_to_buff(socket_recaive_hash, events[i].data.fd, commands_hash, buf);
+		    rpush_to_buff(socket_recaive_hash, events[i].data.fd, buf);
+		    openproto_next_read_command(socket_recaive_hash, events[i].data.fd, commands_hash, ecounter, command_count, efd, events[i].data.fd);
 		  }
               }
 	      if (done){

@@ -15,6 +15,7 @@
 
 //do detect and run command
 int openproto_run_command(char* string, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, GHashTable* command, int command_count, int step, int sockfd);
+int openproto_next_read_command(GHashTable* socket_recaive_hash, int client_fd, GHashTable* commands_hash, int ecounter, int command_count, int efd, int sockfd);
 
 int openproto_detect_command(char* string);
 char openproto_parse(char* string, char** value, unsigned int* event);

@@ -43,6 +43,28 @@ int openproto_run_command(char* string, int console_efd, GHashTable *send, GHash
     }
 }
 
+int openproto_next_read_command(GHashTable* socket_recaive_hash, int client_fd, GHashTable* commands_hash, int ecounter, int command_count, int efd, int sockfd)
+{
+    //get data from buffer
+    
+    //check next command - Read(X) STRING or Read(X) ANY
+    int icounter = ecounter + 1;
+    printf("ecounter=%d\n",icounter);
+    char* str_icounter = malloc(sizeof(char) * 1024);
+    memset(str_icounter, 0 , 1024);
+    sprintf(str_icounter, "%d", icounter);
+    printf("count commands in batch: %d\n", g_hash_table_size(commands_hash));
+    char* nextcommand = g_hash_table_lookup(commands_hash, str_icounter);
+    if (!nextcommand){
+	debug("Command batch is empty");
+    }else{
+	debug("Next Command:");
+	debug(nextcommand);
+    }
+    icounter = openproto_run_command(nextcommand, efd, 0, socket_recaive_hash, commands_hash, command_count, icounter, sockfd);
+    return icounter;
+}
+
 int openproto_detect_command(char* string)
 {
     if (strpos(OPENPROTO_STR_CONNECT, string) == 0){
@@ -165,5 +187,11 @@ char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recai
     char* recaived = g_hash_table_lookup(recaive, sock_str);
     debug("Read!");
     printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
+
+    //if Read(X) STRING
+	//split by strings, serve strings (run next command: READ or MATCH or CLOSE), increment command counters
+    //if Read(X) ANY
+	//increment command counters, run next command: MATCH or CLOSE
+
 }
 
