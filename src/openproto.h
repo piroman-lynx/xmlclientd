@@ -23,4 +23,4 @@ char openproto_parse(char* string, char** value, unsigned int* event);
 
 int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash);
 void openproto_run_CLOSE(unsigned int event);
-char* openproto_run_READ(unsigned int event, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, int sockfd);
+char* openproto_run_READ(unsigned int event, char* value, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, int sockfd);

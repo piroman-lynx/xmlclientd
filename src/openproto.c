@@ -40,7 +40,7 @@ int openproto_run_command(char* string, struct connection **conn /*int console_e
 	    break;
 	case OPENPROTO_READ:
 	    printf("sockfd: %d\n",(*conn)->sockfd);
-	    openproto_run_READ(event, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
+	    openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
 	    return 0;
 	    break;
 	default:
@@ -188,7 +188,7 @@ void openproto_run_CLOSE(unsigned int event)
     debug("Close!");
 }
 
-char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recaive, int sockfd)
+char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHashTable *recaive, int sockfd)
 {
     char* sock_str = malloc(128 * sizeof(char));
     sprintf(sock_str, "%d", sockfd);
@@ -197,11 +197,12 @@ char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recai
     debug("Read!");
     printf("sock_str: %s\n", sock_str);
     printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
-
-    //if Read(X) STRING
-	//split by strings, serve strings (run next command: READ or MATCH or CLOSE), increment command counters
-    //if Read(X) ANY
+    printf("Command Type: %s\n",value);
+    if (strpos("STRING",value) == 0){
+	
+	//split first string, serve strings (run next command: READ or MATCH or CLOSE), increment command counters
+    }else{
 	//increment command counters, run next command: MATCH or CLOSE
-
+    }
 }
 
