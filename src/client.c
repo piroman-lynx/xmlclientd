@@ -1,6 +1,7 @@
 #include "process.h"
 #include "debug.h"
 #include "server.h"
+#include "const.h"
 
 #include <stdlib.h>
 #include <sys/epoll.h>
@@ -44,30 +45,35 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 
     int oldlen = strlen(str);
     int i,j=0;
+    printf("oldlen: %d, < %d", oldlen, oldlen+strlen(buff));
     for (i=oldlen; i<oldlen+strlen(buff); i++){
 	str[i] = buff[j];
 	j++;
     }
     str[i] = '\0';
     debug("free str_socket");
+    debug("dataiN:");
+    debug(str);
+    g_hash_table_insert(socket_recaive_hash, str_socket, str);
     free(str_socket);
+    free(tmpstr);
     return;
 }
 
 
-void client_start_epoll(int efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, GHashTable* commands_hash, int command_count, int ecounter)
+void client_start_epoll(struct connection **conn)
 {
     char buf[1024];
     struct epoll_event *events;
     events = calloc (MAXEVENTS, sizeof (struct epoll_event));
 
-    int icounter=ecounter;
+    int icounter=(*conn)->now_command;
 
-    printf("efd=%d\n", efd);
+    printf("efd=%d\n", (*conn)->efd);
 
     while (1){
       int n, i;
-      n = epoll_wait (efd, events, MAXEVENTS, -1);
+      n = epoll_wait ((*conn)->efd, events, MAXEVENTS, -1);
       for (i = 0; i < n; i++){
 	    //115 - operation in progress
             if ((errno != 115) && ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN)))) {
@@ -95,8 +101,10 @@ void client_start_epoll(int efd, GHashTable* socket_send_hash, GHashTable* socke
                   } else {
 		    debug("Readed!:");
 		    debug(buf);
-		    rpush_to_buff(socket_recaive_hash, events[i].data.fd, buf);
-		    openproto_next_read_command(socket_recaive_hash, events[i].data.fd, commands_hash, ecounter, command_count, efd, events[i].data.fd);
+		    printf("now fd in epoll: %d\n", events[i].data.fd);
+		    rpush_to_buff((*conn)->recaive_hash, events[i].data.fd, buf);
+		    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
+		    openproto_next_read_command(conn);
 		  }
               }
 	      if (done){

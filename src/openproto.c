@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-int openproto_run_command(char* string, struct connection *conn /*int console_efd, GHashTable *send, GHashTable *recaive, GHashTable *commands, int command_count, int step, int sockfd*/)
+int openproto_run_command(char* string, struct connection **conn /*int console_efd, GHashTable *send, GHashTable *recaive, GHashTable *commands, int command_count, int step, int sockfd*/)
 {
     int command = openproto_detect_command(string);
     if (command < 0){
@@ -28,16 +28,19 @@ int openproto_run_command(char* string, struct connection *conn /*int console_ef
 
     switch (command){
 	case OPENPROTO_CONNECT:
-	    sock = openproto_run_CONNECT(value, event, (*conn).efd, (*conn).send_hash, (*conn).recaive_hash);
-	    (*conn).sockfd = sock;
-	    return 0;
+	    sock = openproto_run_CONNECT(value, event, (*conn)->efd, (*conn)->send_hash, (*conn)->recaive_hash);
+	    printf("openproto_run_command/connect sockfd_origin: %d\n",sock);
+	    (*conn)->sockfd = sock;
+	    printf("openproto_run_command/connect sockfd: %d\n",(*conn)->sockfd);
+	    return sock;
 	    break;
 	case OPENPROTO_CLOSE:
 	    openproto_run_CLOSE(event);
 	    return 0;
 	    break;
 	case OPENPROTO_READ:
-	    openproto_run_READ(event, (*conn).send_hash, (*conn).recaive_hash, (*conn).sockfd);
+	    printf("sockfd: %d\n",(*conn)->sockfd);
+	    openproto_run_READ(event, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
 	    return 0;
 	    break;
 	default:
@@ -45,25 +48,27 @@ int openproto_run_command(char* string, struct connection *conn /*int console_ef
     }
 }
 
-int openproto_next_read_command(struct connection *conn)
+int openproto_next_read_command(struct connection **conn)
 {
     //get data from buffer
-    
+
     //check next command - Read(X) STRING or Read(X) ANY
-    int icounter = (*conn).now_command + 1;
+    int icounter = (*conn)->now_command + 1;
     printf("ecounter=%d\n",icounter);
     char* str_icounter = malloc(sizeof(char) * 1024);
     memset(str_icounter, 0 , 1024);
     sprintf(str_icounter, "%d", icounter);
-    printf("count commands in batch: %d\n", g_hash_table_size((*conn).commands_hash));
-    char* nextcommand = g_hash_table_lookup((*conn).commands_hash, str_icounter);
+    debug("count commands in batch: ");
+    printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
+    char* nextcommand = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
     if (!nextcommand){
 	debug("Command batch is empty");
     }else{
 	debug("Next Command:");
 	debug(nextcommand);
     }
-    (*conn).now_command = icounter;
+    (*conn)->now_command = icounter;
+    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
     icounter = openproto_run_command(nextcommand, conn);
     return icounter;
 }
@@ -132,7 +137,7 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     struct hostent* host;
     if (url_parse(uri, &proto, &host, &port) < 0){
 	logger("Can't parse url",DEBUG_WARN);
-	return;
+	return -1;
     }
     free(uri);
     int sockfd, n;
@@ -140,7 +145,7 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
 	logger("Can't create client socket",DEBUG_ERROR);
-	return;
+	return -2;
     }
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
@@ -150,12 +155,12 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     serv_addr.sin_port = htons(port);
     if (make_socket_non_blocking(sockfd) != 0){
 	logger("can't make socket non-blocking",DEBUG_ERROR);
-	return;
+	return -3;
     }
     if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0){
 	if (errno != 115){
 		logger("can't connect client socket",DEBUG_ERROR);
-		return;
+		return -4;
 	}else{
 		debug("Connect: operation in progress");
 	}
@@ -165,6 +170,7 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     revent->events = EPOLLIN | EPOLLET;
     if (epoll_ctl(console_efd, EPOLL_CTL_ADD, sockfd, revent) == -1){
 	logger("can't epoll_ctl", DEBUG_ERROR);
+	return -5;
     }
     printf("socket: %d\n", sockfd);
 
@@ -189,6 +195,7 @@ char* openproto_run_READ(unsigned int event, GHashTable *send, GHashTable *recai
 
     char* recaived = g_hash_table_lookup(recaive, sock_str);
     debug("Read!");
+    printf("sock_str: %s\n", sock_str);
     printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
 
     //if Read(X) STRING

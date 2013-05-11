@@ -7,6 +7,10 @@
 #include <unistd.h>
 #include <sys/epoll.h>
 #include <stdlib.h>
+#include <sys/epoll.h>
+#include <errno.h>
+#include <glib.h>
+#include <string.h>
 
 #include "const.h"
 
