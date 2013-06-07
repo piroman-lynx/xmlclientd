@@ -43,8 +43,37 @@ int openproto_run_command(char* string, struct connection **conn /*int console_e
 	    openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
 	    return 0;
 	    break;
+	case OPENPROTO_WRITE:
+	    printf("sockfd: %d, write\n",(*conn)->sockfd);
+	    openproto_run_WRITE(value, (*conn)->sockfd);
+	    return 0;
+	    break;
 	default:
 	    logger("Not Implemented!", DEBUG_ERROR);
+    }
+}
+
+int openproto_detect_write(struct connection **conn)
+{
+    int icounter = (*conn)->now_command + 1;
+    char* str_icounter = malloc(sizeof(char) * 1024);
+    memset(str_icounter, 0 , 1024);
+    sprintf(str_icounter, "%d", icounter);
+    printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
+    printf("str_icounter: '%s'\n", str_icounter);
+    char* nextcommand = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
+    debug("Detecting!");
+    printf("String: %s\n", nextcommand);
+    printf("(*conn): %i\n", (*conn));
+    printf("commands_hash: %i\n", (*conn)->commands_hash);
+    int i = openproto_detect_command(nextcommand);
+    debug("getted!");
+    if (i == OPENPROTO_WRITE){
+        debug("Detected write");
+	return 1;
+    }else{
+	debug("Detected read");
+	return 0;
     }
 }
 
@@ -80,6 +109,9 @@ int openproto_detect_command(char* string)
     }else
     if (strpos(OPENPROTO_STR_CLOSE, string) == 0){
 	return OPENPROTO_CLOSE;
+    }else
+    if (strpos(OPENPROTO_STR_WRITE, string) == 0){
+	return OPENPROTO_WRITE;
     }else
     if (strpos(OPENPROTO_STR_READ, string) == 0){
 	return OPENPROTO_READ;
@@ -206,3 +238,11 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     }
 }
 
+void openproto_run_WRITE(char* value, int sockfd)
+{
+    debug("Write!");
+    char* sock_str = malloc(128 * sizeof(char));
+    sprintf(sock_str, "%d", sockfd);
+    printf("Bytes: %d, value %s\n", strlen(value), value);
+    send(sockfd, value, strlen(value)+1, 0);
+}

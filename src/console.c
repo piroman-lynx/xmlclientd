@@ -19,14 +19,17 @@ void console_start(int argc, char* argv[])
     buff[conn->commands_count] = malloc(sizeof(char) * READ_BUFF_SIZE);
     memset(buff[conn->commands_count], 0, READ_BUFF_SIZE);
 
-    char n_str[]="\0\0\0\0\0\0\0\0\0";
+    char *n_str;
     while ((n = read(STDIN_FILENO, buff[conn->commands_count], READ_BUFF_SIZE-1)) > 0){
 	if (strlen(buff[conn->commands_count])==1){
 	    break;
 	}
 	debug("readed!");
+	n_str = malloc(32 * sizeof(char));
 	sprintf(n_str, "%d", conn->commands_count);
 	printf("command_count=%d\n", conn->commands_count);
+	printf("command_readed=%s\n", buff[conn->commands_count]);
+	printf("n_str='%s'\n", n_str);
 	g_hash_table_insert(conn->commands_hash, n_str, buff[conn->commands_count]);
 	conn->commands_count++;
 	buff[conn->commands_count] = malloc(sizeof(char) * READ_BUFF_SIZE);
@@ -44,13 +47,17 @@ void console_start(int argc, char* argv[])
 	}
 	debug("Run Command");
 	int r = openproto_run_command(buff[i], &conn /*console_efd, socket_send_hash, socket_recaive_hash, commands_hash, command_count, i, sockfd*/);
-	free(buff[i]);
+	//todo: tmp commented
+	//free(buff[i]);
 	int new_size = g_hash_table_size(conn->send_hash);
 	if (new_size > old_size){
 	    //connection open!
 	    debug("connection opened");
 	    //conn->sockfd = r;
-	    break;
+	    if (!openproto_detect_write(&conn))
+	    {
+		break;
+	    }
 	}
     }
     client_start_epoll(&conn);
