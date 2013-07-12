@@ -9,11 +9,13 @@
 #define OPENPROTO_WRITE 6
 #define OPENPROTO_MATCH 7
 #define OPENPROTO_EXISTS 7
+#define OPENPROTO_WRITELN 8
 
 #define OPENPROTO_STR_CONNECT "Connect("
 #define OPENPROTO_STR_CLOSE "Close("
 #define OPENPROTO_STR_READ "Read("
 #define OPENPROTO_STR_WRITE "Write("
+#define OPENPROTO_STR_WRITELN "Writeln("
 
 //do detect and run command
 int openproto_run_command(char* string, struct connection **conn);
@@ -27,3 +29,4 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
 void openproto_run_CLOSE(unsigned int event);
 char* openproto_run_READ(unsigned int event, char* value, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, int sockfd);
 void openproto_run_WRITE(char* value, int sockfd);
+void openproto_run_WRITELN(char* value, int sockfd);

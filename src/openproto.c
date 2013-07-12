@@ -40,7 +40,16 @@ int openproto_run_command(char* string, struct connection **conn /*int console_e
 	    break;
 	case OPENPROTO_READ:
 	    printf("sockfd: %d\n",(*conn)->sockfd);
+	    if (!success){
+		value = malloc(sizeof(char)*2);
+		strcpy(value, "\n");
+	    }
 	    openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
+	    return 0;
+	    break;
+	case OPENPROTO_WRITELN:
+	    printf("sockfd: %d, writeln\n",(*conn)->sockfd);
+	    openproto_run_WRITELN(value, (*conn)->sockfd);
 	    return 0;
 	    break;
 	case OPENPROTO_WRITE:
@@ -68,7 +77,7 @@ int openproto_detect_write(struct connection **conn)
     printf("commands_hash: %i\n", (*conn)->commands_hash);
     int i = openproto_detect_command(nextcommand);
     debug("getted!");
-    if (i == OPENPROTO_WRITE){
+    if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN)){
         debug("Detected write");
 	return 1;
     }else{
@@ -112,6 +121,9 @@ int openproto_detect_command(char* string)
     }else
     if (strpos(OPENPROTO_STR_WRITE, string) == 0){
 	return OPENPROTO_WRITE;
+    }else
+    if (strpos(OPENPROTO_STR_WRITELN, string) == 0){
+	return OPENPROTO_WRITELN;
     }else
     if (strpos(OPENPROTO_STR_READ, string) == 0){
 	return OPENPROTO_READ;
@@ -236,6 +248,19 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     }else{
 	//increment command counters, run next command: MATCH or CLOSE
     }
+}
+
+void openproto_run_WRITELN(char* value, int sockfd)
+{
+    debug("WriteLN!");
+    char* newval = malloc(sizeof(char) * strlen(value) + 2*sizeof(char));
+    memcpy(newval, value, sizeof(char)*strlen(value));
+    unsigned int len = strlen(value);
+    newval[len] = "\n";
+    newval[len+1] = "\0";
+    printf("oldValue: %s\n", value);
+    printf("value: %s\n", newval);
+    openproto_run_WRITE(newval, sockfd);
 }
 
 void openproto_run_WRITE(char* value, int sockfd)
