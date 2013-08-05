@@ -59,13 +59,14 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 	    break;
 	case OPENPROTO_READ:
 	    printf("openproto_run_command/read\n");
-//	    printf("sockfd: %d\n",(*conn)->sockfd);
 	    if (!success){
 		value = malloc(sizeof(char)*2);
 		strcpy(value, "\n");
 	    }
-	    openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
-	    (*conn)->now_command = icounter;
+	    char *readed = openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
+	    if (readed != -1){
+		(*conn)->now_command = icounter;
+	    }
 	    return 0;
 	    break;
 	case OPENPROTO_WRITELN:
@@ -189,7 +190,7 @@ char openproto_parse(char* string, char** value, unsigned int* event)
     j=0;
 //    printf("detected string: %s\n", string);
     char *str = malloc(sizeof(char) * (strlen(string) + 1));
-    memcpy(str, string+(endEvent+1)*sizeof(char), strlen(string)+1);
+    memcpy(str, string+(endEvent+2)*sizeof(char), strlen(string)+1);
     (*value) = malloc(sizeof(char) * (strlen(str) + 1));
     strcpy((*value), str);
 
@@ -264,15 +265,12 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     sprintf(sock_str, "%d", sockfd);
 
     char* recaived = g_hash_table_lookup(recaive, sock_str);
-    //debug("Read!");
-    //printf("sock_str: %s\n", sock_str);
-    //printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
-    //printf("Command Type: %s\n",value);
     printf("> %s\n", recaived);
     if (strpos("STRING",value) == 0){
-	//split first string, serve strings (run next command: READ or MATCH or CLOSE), increment command counters
-    }else{
-	//increment command counters, run next command: MATCH or CLOSE
+	
+    }else if(strpos("ALL",value) == 0){
+	//next command is here command
+	return -1;
     }
 }
 
