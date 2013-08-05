@@ -181,6 +181,9 @@ void* client_watcher_entry_point()
 		    debug("Watcher do write!");
 			openproto_run_command("", conn);
 		    }
+		    wait_watcher_lock_and_lock();
+		    //удаляем из watcher-a
+		    wait_watcher_lock_unlock();
 		}else{
 		    wait_watcher_lock_and_lock();
 		    //удаляем из watcher-a
