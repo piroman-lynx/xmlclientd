@@ -21,16 +21,11 @@ void console_start(int argc, char* argv[])
 
     char *n_str;
     while ((n = read(STDIN_FILENO, buff[conn->commands_count], READ_BUFF_SIZE-1)) > 0){
-    //while ((n = fgets(buff[conn->commands_count], READ_BUFF_SIZE-1, STDIN_FILENO)) > 0){
 	if (strlen(buff[conn->commands_count])==1){
 	    break;
 	}
-//	debug("readed!");
 	n_str = malloc(32 * sizeof(char));
 	sprintf(n_str, "%d", conn->commands_count);
-//	printf("command_count=%d\n", conn->commands_count);
-//	printf("command_readed=%s\n", buff[conn->commands_count]);
-//	printf("n_str='%s'\n", n_str);
 	g_hash_table_insert(conn->commands_hash, n_str, buff[conn->commands_count]);
 	conn->commands_count++;
 	buff[conn->commands_count] = malloc(sizeof(char) * READ_BUFF_SIZE);
@@ -41,7 +36,6 @@ void console_start(int argc, char* argv[])
     int opened=0;
 
     debug("Run Command (hard)");
-    //printf("command for run (hard): %s\n", buff[i]);
     int old_size = g_hash_table_size(conn->send_hash);
     int r = openproto_run_command(buff[0], &conn);
     if (r>0){
@@ -63,6 +57,9 @@ void console_start(int argc, char* argv[])
 		    debug("Run Command (soft)");
 		    //printf("command for run (soft): %s\n", buff[i]);
 		    int r = openproto_run_command(buff[i], &conn);
+		    if (r<0){
+			break;
+		    }
 		}
 	    }else{
 		sleep(1);

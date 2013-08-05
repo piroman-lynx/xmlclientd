@@ -4,3 +4,7 @@
 
 void client_start_process(int argc, int* argv);
 void client_start_epoll(struct connection **conn);
+int client_epoll_create();
+void client_start_watcher();
+void* client_watcher_entry_point();
+void client_watcher_add(int sfd);

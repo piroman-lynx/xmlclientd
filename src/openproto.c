@@ -34,6 +34,7 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
     char* value;
     char* returned;
     int sock;
+    int w;
 
     char success = openproto_parse(string, &value, &event);
 
@@ -70,16 +71,20 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 	    printf("openproto_run_command/writeln\n");
 //	    printf("sockfd: %d, writeln\n",(*conn)->sockfd);
 //	    printf("run_command 3(value): %s\n", value);
-	    openproto_run_WRITELN(value, (*conn)->sockfd);
-	    (*conn)->now_command = icounter;
-	    return 0;
+	    w = openproto_run_WRITELN(value, (*conn)->sockfd);
+	    if (w>0){
+		(*conn)->now_command = icounter;
+	    }
+	    return w;
 	    break;
 	case OPENPROTO_WRITE:
 	    printf("openproto_run_command/write\n");
 //	    printf("sockfd: %d, write\n",(*conn)->sockfd);
-	    openproto_run_WRITE(value, (*conn)->sockfd);
-	    (*conn)->now_command = icounter;
-	    return 0;
+	    w = openproto_run_WRITE(value, (*conn)->sockfd);
+	    if (w>0){
+		(*conn)->now_command = icounter;
+	    }
+	    return w;
 	    break;
 	default:
 	    logger("Not Implemented!", DEBUG_ERROR);
@@ -241,6 +246,7 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     printf("sock_str: %s\n", sock_str);
     g_hash_table_insert(send, sock_str, "");
     g_hash_table_insert(recaive, sock_str, "");
+    client_watcher_add(sockfd);
     //free(sock_str);
     return sockfd;
 }
@@ -269,7 +275,7 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     }
 }
 
-void openproto_run_WRITELN(char* value, int sockfd)
+int openproto_run_WRITELN(char* value, int sockfd)
 {
     //debug("WriteLN!");
     char* newval = malloc(sizeof(char) * strlen(value) + 3*sizeof(char));
@@ -280,10 +286,10 @@ void openproto_run_WRITELN(char* value, int sockfd)
     newval[len+2] = '\0';
     //printf("oldValue: %s\n", value);
     //printf("value: %s\n", newval);
-    openproto_run_WRITE(newval, sockfd);
+    return openproto_run_WRITE(newval, sockfd);
 }
 
-void openproto_run_WRITE(char* value, int sockfd)
+int openproto_run_WRITE(char* value, int sockfd)
 {
     //debug("Write!");
     char* sock_str = malloc(128 * sizeof(char));
@@ -293,5 +299,11 @@ void openproto_run_WRITE(char* value, int sockfd)
     int sended = send(sockfd, value, strlen(value)+1, 0);
     if (sended < 0){
 	logger("send returned -1 status", DEBUG_ERROR);
+	if (errno == EWOULDBLOCK){
+	    logger("socket is in progress now....", DEBUG_WARN);
+	    return -1;
+	}
+	return -2;
     }
+    return sended;
 }

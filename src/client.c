@@ -83,6 +83,7 @@ void client_start_epoll(struct connection **conn)
 		close (events[i].data.fd);
 		continue;
 	    }else{
+	      printf("errno: %d\n", errno);
               int done = 0;
               while (1){
                   ssize_t count;
@@ -133,6 +134,7 @@ int client_epoll_create()
 	logger("epoll_create1 failed",DEBUG_ERROR);
 	return -1;
     }
+    client_start_watcher();
     return efd;
 }
 
@@ -143,3 +145,30 @@ void client_start_process(int argc, int* argv)
 	debug("can't fork client\n");
     }
 }
+
+GHashTable* watchers;
+
+void client_watcher_add(int sfd)
+{
+    char *sfm = malloc(sizeof(char)*25);
+    sprintf(sfm, "%d", sfd);
+    g_hash_table_insert(watchers, sfm, sfm);
+}
+
+void* client_watcher_entry_point()
+{
+    watchers = g_hash_table_new(g_str_hash, g_str_equal);
+    while (1){
+	if (g_hash_table_size(watchers) > 0){
+	    debug("Watcher added!");
+	}
+	sleep(1);
+    }
+}
+
+void client_start_watcher()
+{
+    pthread_t watcher_pt;
+    pthread_create(&watcher_pt, NULL, client_watcher_entry_point, NULL);
+}
+
