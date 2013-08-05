@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "server.h"
 #include "const.h"
+#include "client.h"
 
 #include <stdlib.h>
 #include <sys/epoll.h>
@@ -148,6 +149,8 @@ void client_start_process(int argc, int* argv)
 
 GHashTable* watchers;
 
+
+
 void client_watcher_add(struct connection **conn)
 {
     char *sfm = malloc(sizeof(char)*64);
@@ -209,5 +212,6 @@ void client_start_watcher()
 {
     pthread_t watcher_pt;
     pthread_create(&watcher_pt, NULL, client_watcher_entry_point, NULL);
+    return;
 }
 
