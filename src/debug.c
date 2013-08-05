@@ -9,9 +9,9 @@ char levels[][6] = { "FATAL", "ERROR", "WARN ", "INFO ", "     ", "     ", "DEBU
 
 void logger(char* message, int level)
 {
-    char *msg = rtrim(&message);
-    printf("[%d] [%s] %s\n", 0, levels[level], msg);
-    free(msg);
+//    char *msg = rtrim(&message);
+    printf("[%d] [%s] %s\n", 0, levels[level], message);
+//    free(msg);
 }
 
 void info(char* message)

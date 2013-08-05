@@ -59,9 +59,9 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 	    }
 	    char *readed = openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
 	    if (readed == (char*)-1){
-		(*conn)->now_command = icounter;
 		return -1;
 	    }
+	    (*conn)->now_command = icounter;
 	    return 0;
 	    break;
 	case OPENPROTO_WRITELN:
@@ -242,10 +242,13 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     char* recaived = g_hash_table_lookup(recaive, sock_str);
     debug_s("> ", recaived);
     if (strpos("STRING",value) == 0){
-	printf("strpos: %d\n",strpos("\n", value));
-	if (strpos("\n", value) == -1){
+	printf("strpos: %d\n", strpos("\n", recaived));
+	if (strpos("\n", recaived) == -1){
 	    return (char*)-1;
 	}
+	//process string
+	g_hash_table_insert(recaive, sock_str, "");
+	return (char*)0;
     }else if(strpos("ALL",value) == 0){
 	//next command is here command
 	return (char*)-1;
@@ -257,8 +260,8 @@ int openproto_run_WRITELN(char* value, int sockfd)
     char* newval = malloc(sizeof(char) * strlen(value) + 3*sizeof(char));
     memcpy(newval, value, sizeof(char)*strlen(value));
     unsigned int len = strlen(value);
-    newval[len] = '\n';
-    newval[len+1] = '\r';
+    newval[len] = '\r';
+    newval[len+1] = '\n';
     newval[len+2] = '\0';
     return openproto_run_WRITE(newval, sockfd);
 }

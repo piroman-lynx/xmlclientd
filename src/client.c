@@ -88,24 +88,14 @@ void client_start_epoll(struct connection **conn)
                       break;
                   } else if (count == 0) {
                       done = 1;
+		      debug("done");
+                      client_read_event(conn);
                       break;
                   } else {
 		    rpush_to_buff((*conn)->recaive_hash, events[i].data.fd, buf);
-		    int result = openproto_next_read_command(conn);
-		    if (result >= 0){
-			debug("read is fully");
-			int res;
-			while (res = openproto_detect_write(conn) == 1){
-			    if (openproto_run_command("", conn)){
-				break;
-			    }
-			}
-			if (res == 2){
-			    debug("Connection closed By script, exiting");
-			    break;
-			}
-		    }else{
-			debug("read is not a full");
+		    if (client_read_event(conn) == -1){
+			debug("break reads");
+			break;
 		    }
 		  }
               }
@@ -116,6 +106,27 @@ void client_start_epoll(struct connection **conn)
           }
       }
    }
+}
+
+
+int client_read_event(struct connection **conn){
+    int result = openproto_next_read_command(conn);
+    if (result >= 0){
+        debug("read is fully");
+        int res;
+        while (res = openproto_detect_write(conn) == 1){
+	    if (openproto_run_command("", conn)){
+	        break;
+	    }
+	}
+	if (res == 2){
+	    debug("Connection closed By script, exiting");
+	    return -2;
+	}
+    }else{
+        debug("read is not a full");
+    }
+    return 0;
 }
 
 
