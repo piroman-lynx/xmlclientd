@@ -18,14 +18,14 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
     char* str_icounter = malloc(sizeof(char) * 1024);
     memset(str_icounter, 0 , 1024);
     sprintf(str_icounter, "%d", icounter);
-    printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
-    printf("str_icounter: '%s'\n", str_icounter);
+//    printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
+//    printf("str_icounter: '%s'\n", str_icounter);
     char* string = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
 
 
-    printf("run_command 1: %s\n", string);
+//    printf("run_command 1: %s\n", string);
     int command = openproto_detect_command(string);
-    printf("run_command 2: %s\n", string);
+//    printf("run_command 2: %s\n", string);
     if (command < 0){
 	logger("Bad command", DEBUG_WARN);
 	return;
@@ -42,21 +42,22 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
     switch (command){
 	case OPENPROTO_CONNECT:
 	    sock = openproto_run_CONNECT(value, event, (*conn)->efd, (*conn)->send_hash, (*conn)->recaive_hash);
-	    printf("openproto_run_command/connect sockfd_origin: %d\n",sock);
+//	    printf("openproto_run_command/connect sockfd_origin: %d\n",sock);
 	    (*conn)->sockfd = sock;
-	    printf("openproto_run_command/connect sockfd: %d\n",(*conn)->sockfd);
+//	    printf("openproto_run_command/connect sockfd: %d\n",(*conn)->sockfd);
+	    printf("openproto_run_command/connect");
 	    (*conn)->now_command = icounter;
 	    return sock;
 	    break;
 	case OPENPROTO_CLOSE:
 	    printf("openproto_run_command/close\n");
-	    openproto_run_CLOSE(event);
+	    openproto_run_CLOSE(event, (*conn)->sockfd);
 	    (*conn)->now_command = icounter;
 	    return 0;
 	    break;
 	case OPENPROTO_READ:
 	    printf("openproto_run_command/read\n");
-	    printf("sockfd: %d\n",(*conn)->sockfd);
+//	    printf("sockfd: %d\n",(*conn)->sockfd);
 	    if (!success){
 		value = malloc(sizeof(char)*2);
 		strcpy(value, "\n");
@@ -67,15 +68,15 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 	    break;
 	case OPENPROTO_WRITELN:
 	    printf("openproto_run_command/writeln\n");
-	    printf("sockfd: %d, writeln\n",(*conn)->sockfd);
-	    printf("run_command 3(value): %s\n", value);
+//	    printf("sockfd: %d, writeln\n",(*conn)->sockfd);
+//	    printf("run_command 3(value): %s\n", value);
 	    openproto_run_WRITELN(value, (*conn)->sockfd);
 	    (*conn)->now_command = icounter;
 	    return 0;
 	    break;
 	case OPENPROTO_WRITE:
 	    printf("openproto_run_command/write\n");
-	    printf("sockfd: %d, write\n",(*conn)->sockfd);
+//	    printf("sockfd: %d, write\n",(*conn)->sockfd);
 	    openproto_run_WRITE(value, (*conn)->sockfd);
 	    (*conn)->now_command = icounter;
 	    return 0;
@@ -92,20 +93,20 @@ int openproto_detect_write(struct connection **conn)
     char* str_icounter = malloc(sizeof(char) * 1024);
     memset(str_icounter, 0 , 1024);
     sprintf(str_icounter, "%d", icounter);
-    printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
+    //printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
     printf("str_icounter: '%s'\n", str_icounter);
     char* nextcommand = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
-    debug("Detecting!");
+    //debug("Detecting!");
 //    printf("String: %s\n", nextcommand);
 //    printf("(*conn): %i\n", (*conn));
 //    printf("commands_hash: %i\n", (*conn)->commands_hash);
     int i = openproto_detect_command(nextcommand);
 //    debug("getted!");
     if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN)){
-        debug("Detected write");
+        //debug("Detected write");
 	return 1;
     }else{
-	debug("Detected read");
+	//debug("Detected read");
 	return 0;
     }
 }
@@ -121,17 +122,17 @@ int openproto_next_read_command(struct connection **conn)
     char* str_icounter = malloc(sizeof(char) * 1024);
     memset(str_icounter, 0 , 1024);
     sprintf(str_icounter, "%d", icounter);
-    debug("count commands in batch: ");
-    printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
+    //debug("count commands in batch: ");
+    //printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
     char* nextcommand = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
     if (!nextcommand){
 	debug("Command batch is empty");
     }else{
-	debug("Next Command:");
-	debug(nextcommand);
+	//debug("Next Command:");
+	//debug(nextcommand);
     }
     //(*conn)->now_command = icounter;
-    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
+    //printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
     icounter = openproto_run_command(nextcommand, conn);
     return icounter;
 }
@@ -186,13 +187,13 @@ char openproto_parse(char* string, char** value, unsigned int* event)
 	return 0;
     }
     j=0;
-    printf("detected string: %s\n", string);
+//    printf("detected string: %s\n", string);
     char *str = malloc(sizeof(char) * (strlen(string) + 1));
     memcpy(str, string+(endEvent+1)*sizeof(char), strlen(string)+1);
     (*value) = malloc(sizeof(char) * (strlen(str) + 1));
     strcpy((*value), str);
 
-    printf("detected value: %s\n", (*value));
+//    printf("detected value: %s\n", (*value));
     free(str);
     return 1;
 }
@@ -200,8 +201,8 @@ char openproto_parse(char* string, char** value, unsigned int* event)
 int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable *send, GHashTable *recaive)
 {
     trim(&uri);
-    debug("Connect!");
-    debug(uri);
+//    debug("Connect!");
+//    debug(uri);
     int proto, port;
     struct hostent* host;
     if (url_parse(uri, &proto, &host, &port) < 0){
@@ -252,9 +253,10 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     return sockfd;
 }
 
-void openproto_run_CLOSE(unsigned int event)
+void openproto_run_CLOSE(unsigned int event, int sockfd)
 {
     debug("Close!");
+    close(sockfd);
 }
 
 char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHashTable *recaive, int sockfd)
@@ -263,10 +265,11 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     sprintf(sock_str, "%d", sockfd);
 
     char* recaived = g_hash_table_lookup(recaive, sock_str);
-    debug("Read!");
-    printf("sock_str: %s\n", sock_str);
-    printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
-    printf("Command Type: %s\n",value);
+    //debug("Read!");
+    //printf("sock_str: %s\n", sock_str);
+    //printf("Bytes: %d, value %s\n", strlen(recaived), recaived);
+    //printf("Command Type: %s\n",value);
+    printf("> %s\n", recaived);
     if (strpos("STRING",value) == 0){
 	//split first string, serve strings (run next command: READ or MATCH or CLOSE), increment command counters
     }else{
@@ -276,23 +279,24 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
 
 void openproto_run_WRITELN(char* value, int sockfd)
 {
-    debug("WriteLN!");
+    //debug("WriteLN!");
     char* newval = malloc(sizeof(char) * strlen(value) + 3*sizeof(char));
     memcpy(newval, value, sizeof(char)*strlen(value));
     unsigned int len = strlen(value);
     newval[len] = '\n';
     newval[len+1] = '\r';
     newval[len+2] = '\0';
-    printf("oldValue: %s\n", value);
-    printf("value: %s\n", newval);
+    //printf("oldValue: %s\n", value);
+    //printf("value: %s\n", newval);
     openproto_run_WRITE(newval, sockfd);
 }
 
 void openproto_run_WRITE(char* value, int sockfd)
 {
-    debug("Write!");
+    //debug("Write!");
     char* sock_str = malloc(128 * sizeof(char));
     sprintf(sock_str, "%d", sockfd);
-    printf("Bytes: %d, value %s\n", strlen(value), value);
+    //printf("Bytes: %d, value %s\n", strlen(value), value);
+    printf("< %s\n",value);
     send(sockfd, value, strlen(value)+1, 0);
 }

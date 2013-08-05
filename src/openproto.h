@@ -26,7 +26,7 @@ int openproto_detect_command(char* string);
 char openproto_parse(char* string, char** value, unsigned int* event);
 
 int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash);
-void openproto_run_CLOSE(unsigned int event);
+void openproto_run_CLOSE(unsigned int event, int sockfd);
 char* openproto_run_READ(unsigned int event, char* value, GHashTable* socket_send_hash, GHashTable* socket_recaive_hash, int sockfd);
 void openproto_run_WRITE(char* value, int sockfd);
 void openproto_run_WRITELN(char* value, int sockfd);

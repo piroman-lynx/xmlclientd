@@ -24,7 +24,7 @@ void client_thread(int argc, int* argv)
 
 void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 {
-    debug("push_to_buff!");
+//    debug("push_to_buff!");
 
     char* str_socket = malloc(sizeof(char) * 128);
     sprintf(str_socket, "%d", socket);
@@ -45,15 +45,15 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 
     int oldlen = strlen(str);
     int i,j=0;
-    printf("oldlen: %d, < %d", oldlen, oldlen+strlen(buff));
+//    printf("oldlen: %d, < %d", oldlen, oldlen+strlen(buff));
     for (i=oldlen; i<oldlen+strlen(buff); i++){
 	str[i] = buff[j];
 	j++;
     }
     str[i] = '\0';
-    debug("free str_socket");
-    debug("dataiN:");
-    debug(str);
+//    debug("free str_socket");
+//    debug("dataiN:");
+//    debug(str);
     g_hash_table_insert(socket_recaive_hash, str_socket, str);
     free(str_socket);
     free(tmpstr);
@@ -99,11 +99,11 @@ void client_start_epoll(struct connection **conn)
                       done = 1;
                       break;
                   } else {
-		    debug("Readed!:");
-		    debug(buf);
-		    printf("now fd in epoll: %d\n", events[i].data.fd);
+//		    debug("Readed!:");
+//		    debug(buf);
+//		    printf("now fd in epoll: %d\n", events[i].data.fd);
 		    rpush_to_buff((*conn)->recaive_hash, events[i].data.fd, buf);
-		    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
+//		    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
 		    openproto_next_read_command(conn);
 		    while (openproto_detect_write(conn) == 1){
 			openproto_run_command("", conn);
