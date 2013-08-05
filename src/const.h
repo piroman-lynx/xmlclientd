@@ -8,6 +8,8 @@
 //#define SOMAXCONN 5000
 #define MAXEVENTS 5000
 
+#define WAIT_TO_CONNECTION_DONE_STEP 1
+
 struct connection {
     GHashTable* commands_hash;
     GHashTable* recaive_hash;

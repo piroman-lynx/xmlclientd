@@ -182,6 +182,8 @@ void client_watcher_add(struct connection **conn)
     wait_watcher_lock_unlock();
 }
 
+pthread_mutex_t watcher_lock;
+
 void* client_watcher_entry_point()
 {
     watchers = g_hash_table_new(g_str_hash, g_str_equal);
@@ -190,8 +192,8 @@ void* client_watcher_entry_point()
     while (1){
 	wait_watcher_lock_and_lock();
 	int size=g_hash_table_size(watchers);
+	wait_watcher_lock_unlock();
 	if (size > 0){
-	    wait_watcher_lock_unlock();
 	    for (i=0; i<size; i++){
 		sprintf(srm, "%d", i);
 		struct connection **conn = g_hash_table_lookup(watchers, srm);
@@ -215,23 +217,25 @@ void* client_watcher_entry_point()
 		}
 	    }
 	}
-	sleep(1);
+	sleep(WAIT_TO_CONNECTION_DONE_STEP);
     }
+    pthread_mutex_destroy(&watcher_lock);
 }
 
 void wait_watcher_lock_and_lock()
 {
-//	debug("Temporary not implemented");
+	pthread_mutex_lock(&watcher_lock);
 }
 
 void wait_watcher_lock_unlock()
 {
-//	debug("Temporary not implemented");
+	pthread_mutex_unlock(&watcher_lock);
 }
 
 void client_start_watcher()
 {
     pthread_t watcher_pt;
+    pthread_mutex_init(&watcher_lock, NULL);
     pthread_create(&watcher_pt, NULL, client_watcher_entry_point, NULL);
     return;
 }
