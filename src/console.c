@@ -25,12 +25,12 @@ void console_start(int argc, char* argv[])
 	if (strlen(buff[conn->commands_count])==1){
 	    break;
 	}
-	debug("readed!");
+//	debug("readed!");
 	n_str = malloc(32 * sizeof(char));
 	sprintf(n_str, "%d", conn->commands_count);
-	printf("command_count=%d\n", conn->commands_count);
-	printf("command_readed=%s\n", buff[conn->commands_count]);
-	printf("n_str='%s'\n", n_str);
+//	printf("command_count=%d\n", conn->commands_count);
+//	printf("command_readed=%s\n", buff[conn->commands_count]);
+//	printf("n_str='%s'\n", n_str);
 	g_hash_table_insert(conn->commands_hash, n_str, buff[conn->commands_count]);
 	conn->commands_count++;
 	buff[conn->commands_count] = malloc(sizeof(char) * READ_BUFF_SIZE);
@@ -38,30 +38,39 @@ void console_start(int argc, char* argv[])
     }
 
     debug("Run Command Batch!");
-    for (i=0; i<conn->commands_count; i++){
-	debug("in cycle");
-	int old_size = g_hash_table_size(conn->send_hash);
-	if (!buff[i]){
-	    debug("Command Batch finished");
-	    debug("Exiting");
-	    return;
-	}
-	debug("Run Command");
-	printf("command for run: %s\n", buff[i]);
-	int r = openproto_run_command(buff[i], &conn /*console_efd, socket_send_hash, socket_recaive_hash, commands_hash, command_count, i, sockfd*/);
-	//todo: tmp commented
-	//free(buff[i]);
-	int new_size = g_hash_table_size(conn->send_hash);
-	if (new_size > old_size){
-	    //connection open!
-	    debug("connection opened");
-	    //conn->sockfd = r;
-	    if (!openproto_detect_write(&conn))
-	    {
-		break;
+    int opened=0;
+
+    debug("Run Command (hard)");
+    //printf("command for run (hard): %s\n", buff[i]);
+    int old_size = g_hash_table_size(conn->send_hash);
+    int r = openproto_run_command(buff[0], &conn);
+    if (r>0){
+	for (i=0; i<conn->commands_count; i++){
+	    debug("in cycle");
+	    if (!buff[i]){
+		debug("Command Batch finished");
+		debug("Exiting");
+		return;
+	    }
+	    int new_size = g_hash_table_size(conn->send_hash);
+	    if (new_size > old_size || opened==1){
+		//connection open!
+		debug("connection opened");
+		opened=1;
+		if (openproto_detect_write(&conn) == 0){
+		    break;
+		}else{
+		    debug("Run Command (soft)");
+		    //printf("command for run (soft): %s\n", buff[i]);
+		    int r = openproto_run_command(buff[i], &conn);
+		}
+	    }else{
+		sleep(1);
+		i--;
 	    }
 	}
     }
+    debug("Client start epoll");
     client_start_epoll(&conn);
 
 }

@@ -16,15 +16,17 @@ void trim(char **str)
     int charBeen=0;
     for(i=0; (*str)[i] != '\0'; i++) {
 	if (charBeen == 0){
-	    if ((*str)[i] != ' ' && (*str)[i] != '\t'){
-		ptr[j++] = (*str)[i];
-		charBeen=1;
+	    if ((*str)[i] == ' ' || (*str)[i] == '\t'){
+		debug("skip space");
+		continue;
+	    }
+	}else{
+	    if ((*str)[i] == '\n' || (*str)[i] == '\r'){
+		continue;
 	    }
 	}
-	if ((*str)[i] != '\n' && (*str)[i] != '\r'){
-	    ptr[j++] = (*str)[i];
-	    charBeen=1;
-	}
+	ptr[j++] = (*str)[i];
+	charBeen=1;
     }
     ptr[j] = '\0';
     strcpy((*str), ptr);
