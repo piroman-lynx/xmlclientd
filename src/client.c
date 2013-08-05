@@ -151,12 +151,12 @@ GHashTable* watchers;
 void client_watcher_add(struct connection **conn)
 {
     char *sfm = malloc(sizeof(char)*64);
-    char *connf = malloc(sizeof(char)*64);
-    int sfd = g_hash_table_size(watchers)+1;
+    //char *connf = malloc(sizeof(char)*64);
+    int sfd = g_hash_table_size(watchers);
     wait_watcher_lock_and_lock();
     sprintf(sfm, "%d", sfd);
-    sprintf(connf, "%d", conn);
-    g_hash_table_insert(watchers, sfm, connf);
+    //sprintf(connf, "%d", conn);
+    g_hash_table_insert(watchers, sfm, conn);
     wait_watcher_lock_unlock();
 }
 
@@ -173,10 +173,14 @@ void* client_watcher_entry_point()
 	    for (i=0; i<size; i++){
 		sprintf(srm, "%d", i);
 		struct connection **conn = g_hash_table_lookup(watchers, srm);
-		printf("Watcher check: %s\n", srm);
+		printf("Watcher check: %s, conn=%d\n", srm, conn);
 		if (openproto_detect_write(conn) == 1){
 		    //check
 		    debug("Watcher wait write!");
+		    while (openproto_detect_write(conn) == 1){
+		    debug("Watcher do write!");
+			openproto_run_command("", conn);
+		    }
 		}else{
 		    wait_watcher_lock_and_lock();
 		    //удаляем из watcher-a
