@@ -21,6 +21,7 @@ void console_start(int argc, char* argv[])
 
     char *n_str;
     while ((n = read(STDIN_FILENO, buff[conn->commands_count], READ_BUFF_SIZE-1)) > 0){
+    //while ((n = fgets(buff[conn->commands_count], READ_BUFF_SIZE-1, STDIN_FILENO)) > 0){
 	if (strlen(buff[conn->commands_count])==1){
 	    break;
 	}
@@ -46,6 +47,7 @@ void console_start(int argc, char* argv[])
 	    return;
 	}
 	debug("Run Command");
+	printf("command for run: %s\n", buff[i]);
 	int r = openproto_run_command(buff[i], &conn /*console_efd, socket_send_hash, socket_recaive_hash, commands_hash, command_count, i, sockfd*/);
 	//todo: tmp commented
 	//free(buff[i]);

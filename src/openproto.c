@@ -14,7 +14,9 @@
 
 int openproto_run_command(char* string, struct connection **conn /*int console_efd, GHashTable *send, GHashTable *recaive, GHashTable *commands, int command_count, int step, int sockfd*/)
 {
+    printf("run_command 1: %s\n", string);
     int command = openproto_detect_command(string);
+    printf("run_command 2: %s\n", string);
     if (command < 0){
 	logger("Bad command", DEBUG_WARN);
 	return;
@@ -49,6 +51,7 @@ int openproto_run_command(char* string, struct connection **conn /*int console_e
 	    break;
 	case OPENPROTO_WRITELN:
 	    printf("sockfd: %d, writeln\n",(*conn)->sockfd);
+	    printf("run_command 3(value): %s\n", value);
 	    openproto_run_WRITELN(value, (*conn)->sockfd);
 	    return 0;
 	    break;
@@ -161,14 +164,13 @@ char openproto_parse(char* string, char** value, unsigned int* event)
 	return 0;
     }
     j=0;
+    printf("detected string: %s\n", string);
     char *str = malloc(sizeof(char) * (strlen(string) + 1));
-    for (i=endEvent+1; i<strlen(string); i++){
-	str[j] = string[i];
-	j++;
-    }
-    str[j]=0;
+    memcpy(str, string+(endEvent+1)*sizeof(char), strlen(string)+1);
     (*value) = malloc(sizeof(char) * (strlen(str) + 1));
     strcpy((*value), str);
+
+    printf("detected value: %s\n", (*value));
     free(str);
     return 1;
 }
@@ -256,8 +258,8 @@ void openproto_run_WRITELN(char* value, int sockfd)
     char* newval = malloc(sizeof(char) * strlen(value) + 2*sizeof(char));
     memcpy(newval, value, sizeof(char)*strlen(value));
     unsigned int len = strlen(value);
-    newval[len] = "\n";
-    newval[len+1] = "\0";
+    newval[len] = '\n';
+    newval[len+1] = '\0';
     printf("oldValue: %s\n", value);
     printf("value: %s\n", newval);
     openproto_run_WRITE(newval, sockfd);

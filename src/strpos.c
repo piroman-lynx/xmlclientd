@@ -13,9 +13,17 @@ void trim(char **str)
 {
     char ptr [ strlen((*str)) + 1 ];
     int i, j = 0;
+    int charBeen=0;
     for(i=0; (*str)[i] != '\0'; i++) {
-	if ((*str)[i] != ' ' && (*str)[i] != '\t' && (*str)[i] != '\n' && (*str)[i] != '\r'){
+	if (charBeen == 0){
+	    if ((*str)[i] != ' ' && (*str)[i] != '\t'){
+		ptr[j++] = (*str)[i];
+		charBeen=1;
+	    }
+	}
+	if ((*str)[i] != '\n' && (*str)[i] != '\r'){
 	    ptr[j++] = (*str)[i];
+	    charBeen=1;
 	}
     }
     ptr[j] = '\0';
