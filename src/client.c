@@ -148,22 +148,47 @@ void client_start_process(int argc, int* argv)
 
 GHashTable* watchers;
 
-void client_watcher_add(int sfd)
+void client_watcher_add(connection **conn)
 {
-    char *sfm = malloc(sizeof(char)*25);
+    char *sfm = malloc(sizeof(char)*64);
+    char *connf = malloc(sizeof(char)*64);
+    int sfd = g_hash_table_size(watchers)+1;
+    wait_watcher_lock_and_lock();
     sprintf(sfm, "%d", sfd);
-    g_hash_table_insert(watchers, sfm, sfm);
+    sprintf(connf, "%d", conn);
+    g_hash_table_insert(watchers, sfm, connf);
+    wait_watcher_lock_unlock();
 }
 
 void* client_watcher_entry_point()
 {
     watchers = g_hash_table_new(g_str_hash, g_str_equal);
     while (1){
+	wait_watcher_lock_and_lock();
 	if (g_hash_table_size(watchers) > 0){
-	    debug("Watcher added!");
+	wait_watcher_lock_unlock();
+		printf("Watcher check: %s , %s\n", key, value);
+		if (openproto_detect_write(conn) == 1){
+		    //check
+		}else{
+		    wait_watcher_lock_and_lock();
+		    //удаляем из watcher-a
+		    wait_watcher_lock_unlock();
+		}
+	    }
 	}
 	sleep(1);
     }
+}
+
+void wait_watcher_lock_and_lock()
+{
+//	debug("Temporary not implemented");
+}
+
+void wait_watcher_lock_unlockk()
+{
+//	debug("Temporary not implemented");
 }
 
 void client_start_watcher()
