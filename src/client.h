@@ -10,5 +10,5 @@ void* client_watcher_entry_point();
 void client_watcher_add(int sfd);
 
 void wait_watcher_lock_and_lock();
-void wait_watcher_lock_unlockk();
+void wait_watcher_lock_unlock();
 

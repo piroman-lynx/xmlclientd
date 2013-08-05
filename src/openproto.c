@@ -48,6 +48,7 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 //	    printf("openproto_run_command/connect sockfd: %d\n",(*conn)->sockfd);
 	    printf("openproto_run_command/connect");
 	    (*conn)->now_command = icounter;
+	    client_watcher_add(conn);
 	    return sock;
 	    break;
 	case OPENPROTO_CLOSE:
@@ -246,7 +247,7 @@ int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashT
     printf("sock_str: %s\n", sock_str);
     g_hash_table_insert(send, sock_str, "");
     g_hash_table_insert(recaive, sock_str, "");
-    client_watcher_add(sockfd);
+
     //free(sock_str);
     return sockfd;
 }
