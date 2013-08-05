@@ -1,0 +1,4 @@
+Connect(0) tcp://ya.ru:80
+Writeln(1) GET /
+Read(2) ALL
+Close(3)
