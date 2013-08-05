@@ -11,7 +11,7 @@
 #include <glib.h>
 #include <string.h>
 
-#define MAXEVENTS 1024
+//#define MAXEVENTS 1024
 
 void client_thread(int argc, int* argv)
 {
