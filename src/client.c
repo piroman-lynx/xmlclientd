@@ -34,7 +34,7 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 	str = malloc(sizeof(char) * 1024);
 	memset(str, 0, (1024*sizeof(char)));
     }
-    
+
     char* tmpstr = malloc(sizeof(char) * (strlen(str)+1));
     memcpy(tmpstr, str, sizeof(char) * (strlen(str)+1));
     str = malloc(sizeof(char) * (strlen(str)+strlen(buff)+1));
@@ -91,14 +91,21 @@ void client_start_epoll(struct connection **conn)
                       break;
                   } else {
 		    rpush_to_buff((*conn)->recaive_hash, events[i].data.fd, buf);
-		    openproto_next_read_command(conn);
-		    int res;
-		    while (res = openproto_detect_write(conn) == 1){
-			openproto_run_command("", conn);
-		    }
-		    if (res == 2){
-			debug("Connection closed By script, exiting");
-			break;
+		    int result = openproto_next_read_command(conn);
+		    if (result >= 0){
+			debug("read is fully");
+			int res;
+			while (res = openproto_detect_write(conn) == 1){
+			    if (openproto_run_command("", conn)){
+				break;
+			    }
+			}
+			if (res == 2){
+			    debug("Connection closed By script, exiting");
+			    break;
+			}
+		    }else{
+			debug("read is not a full");
 		    }
 		  }
               }
@@ -184,7 +191,7 @@ void* client_watcher_entry_point()
 		    //check
 		    debug("Watcher wait write!");
 		    while (openproto_detect_write(conn) == 1){
-		    debug("Watcher do write!");
+			debug("Watcher try write!");
 			openproto_run_command("", conn);
 		    }
 		    wait_watcher_lock_and_lock();
@@ -196,6 +203,7 @@ void* client_watcher_entry_point()
 		    //удаляем из watcher-a
 		    client_watcher_remove(i);
 		    wait_watcher_lock_unlock();
+		    continue;
 		}
 	    }
 	}

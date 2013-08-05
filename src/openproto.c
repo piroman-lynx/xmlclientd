@@ -58,8 +58,9 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 		strcpy(value, "\n");
 	    }
 	    char *readed = openproto_run_READ(event, value, (*conn)->send_hash, (*conn)->recaive_hash, (*conn)->sockfd);
-	    if (readed != (char*)-1){
+	    if (readed == (char*)-1){
 		(*conn)->now_command = icounter;
+		return -1;
 	    }
 	    return 0;
 	    break;
@@ -239,9 +240,12 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     sprintf(sock_str, "%d", sockfd);
 
     char* recaived = g_hash_table_lookup(recaive, sock_str);
-    debug("> ...");
+    debug_s("> ", recaived);
     if (strpos("STRING",value) == 0){
-	
+	printf("strpos: %d\n",strpos("\n", value));
+	if (strpos("\n", value) == -1){
+	    return (char*)-1;
+	}
     }else if(strpos("ALL",value) == 0){
 	//next command is here command
 	return (char*)-1;
