@@ -2,13 +2,14 @@ Connect(0) tcp://127.0.0.1:25
 Read(0) STRING
 Writeln(1) HELO ya.ru
 Read(0) STRING
-Writeln(2) MAILFROM <i@ya.ru>
+Writeln(2) MAIL FROM: <i@ya.ru>
 Read(0) STRING
-Writeln(3) RCPTTO <root>
+Writeln(3) RCPT TO: root@localhost
 Read(0) STRING
-Writeln(4) BODY
+Writeln(4) DATA
 Read(0) STRING
 Writeln(5) test body
 Writeln(6) .
+Read(0) STRING
 Writeln(7) QUIT
 Close(8)

@@ -271,7 +271,8 @@ int openproto_run_WRITE(char* value, int sockfd)
     char* sock_str = malloc(128 * sizeof(char));
     sprintf(sock_str, "%d", sockfd);
     debug_s("< ",value);
-    int sended = send(sockfd, value, strlen(value)+1, 0);
+    //int sended = send(sockfd, value, strlen(value)+1, 0);
+    int sended = send(sockfd, value, strlen(value), 0);
     if (sended < 0){
 	logger("send returned -1 status", DEBUG_ERROR);
 	if (errno == EWOULDBLOCK){
