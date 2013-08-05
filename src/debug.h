@@ -1,5 +1,7 @@
 void logger(char *message, int level);
 void debug(char *message);
+void debug_s(char *message, char *string);
+void info(char* message);
 
 #define  DEBUG_FATAL 0
 #define  DEBUG_ERROR 1

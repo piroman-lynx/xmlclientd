@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 int strpos(char *needle, char *haystack)
 {
@@ -8,6 +9,8 @@ int strpos(char *needle, char *haystack)
    }
    return -1;   // Not found = -1.
 }
+
+
 
 void trim(char **str)
 {
@@ -30,4 +33,12 @@ void trim(char **str)
     }
     ptr[j] = '\0';
     strcpy((*str), ptr);
+}
+
+
+char* rtrim(char **str){
+    char *rtrimed = malloc(sizeof(char)*strlen((*str))+1);
+    memcpy(rtrimed, (*str), strlen((*str))*sizeof(char)+1);
+    trim(&rtrimed);
+    return rtrimed;
 }

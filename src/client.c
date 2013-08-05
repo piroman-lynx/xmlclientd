@@ -25,8 +25,6 @@ void client_thread(int argc, int* argv)
 
 void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 {
-//    debug("push_to_buff!");
-
     char* str_socket = malloc(sizeof(char) * 128);
     sprintf(str_socket, "%d", socket);
 
@@ -39,22 +37,16 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
     
     char* tmpstr = malloc(sizeof(char) * (strlen(str)+1));
     memcpy(tmpstr, str, sizeof(char) * (strlen(str)+1));
-    //free(str); //TODO: Segmentation fault here
-    //debug("free");
     str = malloc(sizeof(char) * (strlen(str)+strlen(buff)+1));
     memcpy(str, tmpstr, sizeof(char) * (strlen(str)+1));
 
     int oldlen = strlen(str);
     int i,j=0;
-//    printf("oldlen: %d, < %d", oldlen, oldlen+strlen(buff));
     for (i=oldlen; i<oldlen+strlen(buff); i++){
 	str[i] = buff[j];
 	j++;
     }
     str[i] = '\0';
-//    debug("free str_socket");
-//    debug("dataiN:");
-//    debug(str);
     g_hash_table_insert(socket_recaive_hash, str_socket, str);
     free(str_socket);
     free(tmpstr);
@@ -64,13 +56,11 @@ void rpush_to_buff(GHashTable* socket_recaive_hash, int socket, char* buff)
 
 void client_start_epoll(struct connection **conn)
 {
-    char buf[1024];
+    char buf[RECV_BUF*2];
     struct epoll_event *events;
     events = calloc (MAXEVENTS, sizeof (struct epoll_event));
 
     int icounter=(*conn)->now_command;
-
-    printf("efd=%d\n", (*conn)->efd);
 
     while (1){
       int n, i;
@@ -84,12 +74,11 @@ void client_start_epoll(struct connection **conn)
 		close (events[i].data.fd);
 		continue;
 	    }else{
-	      printf("errno: %d\n", errno);
               int done = 0;
               while (1){
                   ssize_t count;
-                  char buf[512];
-		  memset(buf, 0, 512);
+                  char buf[RECV_BUF];
+		  memset(buf, 0, RECV_BUF);
                   count = read (events[i].data.fd, buf, sizeof buf);
                   if (count == -1){
                       if (errno != EAGAIN){
@@ -101,11 +90,7 @@ void client_start_epoll(struct connection **conn)
                       done = 1;
                       break;
                   } else {
-//		    debug("Readed!:");
-//		    debug(buf);
-//		    printf("now fd in epoll: %d\n", events[i].data.fd);
 		    rpush_to_buff((*conn)->recaive_hash, events[i].data.fd, buf);
-//		    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
 		    openproto_next_read_command(conn);
 		    int res;
 		    while (res = openproto_detect_write(conn) == 1){
@@ -173,11 +158,9 @@ void client_watcher_remove(int position)
 void client_watcher_add(struct connection **conn)
 {
     char *sfm = malloc(sizeof(char)*64);
-    //char *connf = malloc(sizeof(char)*64);
     int sfd = g_hash_table_size(watchers);
     wait_watcher_lock_and_lock();
     sprintf(sfm, "%d", sfd);
-    //sprintf(connf, "%d", conn);
     g_hash_table_insert(watchers, sfm, conn);
     wait_watcher_lock_unlock();
 }
@@ -197,7 +180,6 @@ void* client_watcher_entry_point()
 	    for (i=0; i<size; i++){
 		sprintf(srm, "%d", i);
 		struct connection **conn = g_hash_table_lookup(watchers, srm);
-		printf("Watcher check: %s, conn=%d\n", srm, conn);
 		if (openproto_detect_write(conn) == 1){
 		    //check
 		    debug("Watcher wait write!");
