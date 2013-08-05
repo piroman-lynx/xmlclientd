@@ -102,7 +102,7 @@ int openproto_detect_write(struct connection **conn)
 //    printf("commands_hash: %i\n", (*conn)->commands_hash);
     int i = openproto_detect_command(nextcommand);
 //    debug("getted!");
-    if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN)){
+    if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN) || (i == OPENPROTO_CLOSE)){
         //debug("Detected write");
 	return 1;
     }else{
