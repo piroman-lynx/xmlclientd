@@ -72,5 +72,4 @@ void console_start(int argc, char* argv[])
     }
     debug("Client start epoll");
     client_start_epoll(&conn);
-
 }

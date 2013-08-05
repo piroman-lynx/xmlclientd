@@ -195,8 +195,6 @@ char openproto_parse(char* string, char** value, unsigned int* event)
 int openproto_run_CONNECT(char* uri, unsigned int event, int console_efd, GHashTable *send, GHashTable *recaive)
 {
     trim(&uri);
-//    debug("Connect!");
-//    debug(uri);
     int proto, port;
     struct hostent* host;
     if (url_parse(uri, &proto, &host, &port) < 0){
@@ -292,5 +290,8 @@ void openproto_run_WRITE(char* value, int sockfd)
     sprintf(sock_str, "%d", sockfd);
     //printf("Bytes: %d, value %s\n", strlen(value), value);
     printf("< %s\n",value);
-    send(sockfd, value, strlen(value)+1, 0);
+    int sended = send(sockfd, value, strlen(value)+1, 0);
+    if (sended < 0){
+	logger("send returned -1 status", DEBUG_ERROR);
+    }
 }
