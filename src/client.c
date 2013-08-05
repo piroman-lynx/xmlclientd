@@ -6,7 +6,6 @@
 
 #include <stdlib.h>
 #include <sys/epoll.h>
-#include <stdio.h>
 #include <errno.h>
 #include <glib.h>
 #include <string.h>
@@ -69,7 +68,6 @@ void client_start_epoll(struct connection **conn)
 	    //115 - operation in progress
             if ((errno != 115) && ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP) || (!(events[i].events & EPOLLIN)))) {
 		perror("Epoll");
-		printf("epoll errno=%d\n",errno);
 		logger("epoll error!", DEBUG_ERROR);
 		close (events[i].data.fd);
 		continue;

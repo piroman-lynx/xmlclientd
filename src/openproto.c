@@ -242,7 +242,6 @@ char* openproto_run_READ(unsigned int event, char* value, GHashTable *send, GHas
     char* recaived = g_hash_table_lookup(recaive, sock_str);
     debug_s("> ", recaived);
     if (strpos("STRING",value) == 0){
-	printf("strpos: %d\n", strpos("\n", recaived));
 	if (strpos("\n", recaived) == -1){
 	    return (char*)-1;
 	}
@@ -271,7 +270,6 @@ int openproto_run_WRITE(char* value, int sockfd)
     char* sock_str = malloc(128 * sizeof(char));
     sprintf(sock_str, "%d", sockfd);
     debug_s("< ",value);
-    //int sended = send(sockfd, value, strlen(value)+1, 0);
     int sended = send(sockfd, value, strlen(value), 0);
     if (sended < 0){
 	logger("send returned -1 status", DEBUG_ERROR);
