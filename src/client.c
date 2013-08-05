@@ -105,8 +105,13 @@ void client_start_epoll(struct connection **conn)
 		    rpush_to_buff((*conn)->recaive_hash, events[i].data.fd, buf);
 //		    printf("run_next_read_command sockfd: %d\n",(*conn)->sockfd);
 		    openproto_next_read_command(conn);
-		    while (openproto_detect_write(conn) == 1){
+		    int res;
+		    while (res = openproto_detect_write(conn) == 1){
 			openproto_run_command("", conn);
+		    }
+		    if (res == 2){
+			debug("Connection closed By script, exiting");
+			break;
 		    }
 		  }
               }

@@ -88,25 +88,19 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 
 int openproto_detect_write(struct connection **conn)
 {
-    //int icounter = (*conn)->now_command + 1;
     int icounter = (*conn)->now_command;
     char* str_icounter = malloc(sizeof(char) * 1024);
     memset(str_icounter, 0 , 1024);
     sprintf(str_icounter, "%d", icounter);
-    //printf("count: %d\n", g_hash_table_size((*conn)->commands_hash));
     printf("str_icounter: '%s'\n", str_icounter);
+    if (g_hash_table_size((*conn)->commands_hash) == icounter){
+	return 2;
+    }
     char* nextcommand = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
-    //debug("Detecting!");
-//    printf("String: %s\n", nextcommand);
-//    printf("(*conn): %i\n", (*conn));
-//    printf("commands_hash: %i\n", (*conn)->commands_hash);
     int i = openproto_detect_command(nextcommand);
-//    debug("getted!");
     if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN) || (i == OPENPROTO_CLOSE)){
-        //debug("Detected write");
 	return 1;
     }else{
-	//debug("Detected read");
 	return 0;
     }
 }
