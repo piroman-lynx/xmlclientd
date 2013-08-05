@@ -149,7 +149,26 @@ void client_start_process(int argc, int* argv)
 
 GHashTable* watchers;
 
-
+void client_watcher_remove(int position)
+{
+    int i,j=0;
+    GHashTable* tmpWatcher;
+    tmpWatcher = g_hash_table_new(g_str_hash, g_str_equal); 
+    char *keyI = malloc(sizeof(char)*64);
+    char *keyJ = malloc(sizeof(char)*64);
+    for (i=0; i<g_hash_table_size(watchers); i++){
+	sprintf(keyI, "%d", i);
+	sprintf(keyJ, "%d", j);
+	if (i != position){
+	    g_hash_table_insert(tmpWatcher, keyJ, g_hash_table_lookup(watchers, keyI));
+	    j++;
+	}
+    }
+    g_hash_table_destroy(watchers);
+    watchers = tmpWatcher;
+    free(keyI);
+    free(keyJ);
+}
 
 void client_watcher_add(struct connection **conn)
 {
@@ -186,10 +205,12 @@ void* client_watcher_entry_point()
 		    }
 		    wait_watcher_lock_and_lock();
 		    //удаляем из watcher-a
+		    client_watcher_remove(i);
 		    wait_watcher_lock_unlock();
 		}else{
 		    wait_watcher_lock_and_lock();
 		    //удаляем из watcher-a
+		    client_watcher_remove(i);
 		    wait_watcher_lock_unlock();
 		}
 	    }
