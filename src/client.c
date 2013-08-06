@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <glib.h>
 #include <string.h>
+#include <stdio.h>
 
 //#define MAXEVENTS 1024
 

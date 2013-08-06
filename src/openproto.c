@@ -96,11 +96,22 @@ int openproto_detect_write(struct connection **conn)
     }
     char* nextcommand = g_hash_table_lookup((*conn)->commands_hash, str_icounter);
     int i = openproto_detect_command(nextcommand);
-    if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN) || (i == OPENPROTO_CLOSE)){
-	return 1;
-    }else{
-	return 0;
+    switch (i){
+	case OPENPROTO_WRITE:
+	case OPENPROTO_WRITELN:
+	case OPENPROTO_CLOSE:
+	case OPENPROTO_DO:
+	case OPENPROTO_DIE:
+	    return 1;
+	    break;
+	default:
+	    return 0;
     }
+//    if ((i == OPENPROTO_WRITE) || (i == OPENPROTO_WRITELN) || (i == OPENPROTO_CLOSE)){
+//	return 1;
+//    }else{
+//	return 0;
+//    }
 }
 
 int openproto_next_read_command(struct connection **conn)
@@ -135,6 +146,15 @@ int openproto_detect_command(char* string)
     }else
     if (strpos(OPENPROTO_STR_READ, string) == 0){
 	return OPENPROTO_READ;
+    }else
+    if (strpos(OPENPROTO_STR_DO, string) == 0){
+	return OPENPROTO_DO;
+    }else
+    if (strpos(OPENPROTO_STR_DIE, string) == 0){
+	return OPENPROTO_DIE;
+    }else
+    if (strpos(OPENPROTO_STR_EVENT, string) == 0){
+	return OPENPROTO_EVENT;
     }else{
 	return -1;
     }

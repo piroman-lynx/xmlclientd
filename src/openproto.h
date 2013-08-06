@@ -10,12 +10,18 @@
 #define OPENPROTO_MATCH 7
 #define OPENPROTO_EXISTS 7
 #define OPENPROTO_WRITELN 8
+#define OPENPROTO_DO 9
+#define OPENPROTO_DIE 10
+#define OPENPROTO_EVENT 11
 
 #define OPENPROTO_STR_CONNECT "Connect("
 #define OPENPROTO_STR_CLOSE "Close("
 #define OPENPROTO_STR_READ "Read("
 #define OPENPROTO_STR_WRITE "Write("
 #define OPENPROTO_STR_WRITELN "Writeln("
+#define OPENPROTO_STR_DO "Do("
+#define OPENPROTO_STR_DIE "Die("
+#define OPENPROTO_STR_EVENT "Event("
 
 //do detect and run command
 int openproto_run_command(char* string, struct connection **conn);
