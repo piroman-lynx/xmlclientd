@@ -80,9 +80,27 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 	    }
 	    return w;
 	    break;
+	case OPENPROTO_DO:
+	    debug("openproto_run_command/do");
+	    (*conn)->now_command = icounter;
+	    return 0;
+	    break;
+	case OPENPROTO_DIE:
+	    debug("openproto_run_command/die");
+	    (*conn)->now_command = icounter;
+	    openproto_run_DIE(conn);
+	    return -99; //остановить текущее выполнение
+	    break;
 	default:
 	    error("Not Implemented!", DEBUG_ERROR);
     }
+}
+
+int openproto_run_DIE(struct connection **conn)
+{
+    //закрыть коннекты
+    //остановить евенты epoll, остановить watcher
+    //очистить память
 }
 
 int openproto_detect_write(struct connection **conn)
