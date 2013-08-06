@@ -12,9 +12,19 @@
 void master_forks(int count, int socket)
 {
     int i;
+    int efd = server_epoll_create();
+
+    struct epoll_event *revent = malloc(sizeof(struct epoll_event));
+    revent->data.fd = socket;
+    revent->events = EPOLLIN | EPOLLET;
+    if (epoll_ctl(efd, EPOLL_CTL_ADD, socket, revent) == -1){
+	logger("can't epoll_ctl", DEBUG_ERROR);
+	return;
+    }
+
     for (i=0; i<count; i++){
 	int* argv = malloc(sizeof(int) * 1);
-	argv[0] = socket;
+	argv[0] = efd;
 	client_start_process(1, argv);
     }
 }
