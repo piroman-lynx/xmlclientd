@@ -8,6 +8,7 @@
 //#define SOMAXCONN 5000
 #define MAXEVENTS 5000
 #define RECV_BUF 4096
+#define BUF_SIZE 4096
 
 #define WAIT_TO_CONNECTION_DONE_STEP 1
 

@@ -6,6 +6,8 @@
 
 #include <stdlib.h>
 #include <sys/epoll.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <errno.h>
 #include <glib.h>
 #include <string.h>
@@ -15,10 +17,19 @@
 
 void client_thread(int argc, int* argv)
 {
+    int socket = argv[0];
     logger("Worker process started: cleint", DEBUG_INFO);
+    struct sockaddr_in client_address;
+    int client_sockfd;
+    int size = sizeof(client_address);
     //todo: pass socket here
     if (argc > 0){
-	set_epoll_on_shared_socket(argv[1]);
+	client_sockfd = accept(socket, (struct sockaddr*)&client_address, &size);
+	if (client_sockfd){
+	    
+	}else{
+	    error("Bad socket in input");
+	}
     }
     exit(0);
 }

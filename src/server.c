@@ -2,6 +2,7 @@
 #include "const.h"
 #include <stdlib.h>
 #include <sys/epoll.h>
+#include <netinet/in.h>
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
@@ -28,21 +29,7 @@ void set_epoll_on_shared_socket(int efd, int listener)
 
     while (PERMANENT_CYCLE)
     {
-      int n, i;
-      n = epoll_wait (efd, events, MAXEVENTS, -1);
-      for (i = 0; i < n; i++){
-	    if(events[i].data.fd == listener){
-		debug("connecting!");
-		int client = accept(listener, (struct sockaddr*)&their_addr,);
-		fcntl(sockfd, F_SETFL, fcntl(client, F_GETFD, 0)|O_NONBLOCK);
-		//ev находится в родительском процессе и все ломает
-		ev.data.fd=client;
-		epoll_ctl(efd, EPOLL_CTL_ADD, client, &ev);
-		debug("controled");
-	    }else{
-		server_handle_message(events[i].data.fd);
-	    }
-      }
+	
     }
 }
 

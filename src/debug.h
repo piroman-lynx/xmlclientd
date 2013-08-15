@@ -1,4 +1,5 @@
 void logger(char *message, int level);
+void error(char *message);
 void debug(char *message);
 void debug_s(char *message, char *string);
 void info(char* message);

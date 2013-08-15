@@ -92,7 +92,7 @@ int openproto_run_command(char* rstring, struct connection **conn /*int console_
 	    return -99; //остановить текущее выполнение
 	    break;
 	default:
-	    error("Not Implemented!", DEBUG_ERROR);
+	    error("Not Implemented!");
     }
 }
 

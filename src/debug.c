@@ -14,6 +14,11 @@ void logger(char* message, int level)
 //    free(msg);
 }
 
+void error(char* message)
+{
+    logger(message, DEBUG_ERROR);
+}
+
 void info(char* message)
 {
     logger(message, DEBUG_INFO);
